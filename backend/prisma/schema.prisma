@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Feedback {
+  idfeedback String    @id @default(uuid())
+  titulo     String
+  descricao  String
+  categoria  String
+  status     String   @default("suggestion")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  comments   Comment[] 
+}
+
+model Comment {
+  idcomment  String   @id @default(uuid())
+  idfeedback String
+  autor      String
+  conteudo   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  feedback   Feedback @relation(fields: [idfeedback], references: [idfeedback], onDelete: Cascade)
+
+  @@index([idfeedback], name: "idx_comments_feedback")
+}

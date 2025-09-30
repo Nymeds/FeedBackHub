@@ -1,33 +1,33 @@
 import { z } from "zod";
 import { Feedback } from "@prisma/client";
-import { FeedbacksPrismaRepository, CreateFeedbackDTO } from "../../repositories/prisma/feedbacks-prisma-repository";
-
-const createFeedbackSchema = z.object({
-  titulo: z.string().min(3, "mínimo 3 caracteres"),
-  descricao: z.string().min(10, "mínimo 10 caracteres"),
-  categoria: z.enum(["UI","UX","Feature","Bug","Performance","Other"]),
-  status: z.enum(["suggestion","planned","in_progress","done"]).optional(),
-});
-
-type CreateFeedbackInput = z.infer<typeof createFeedbackSchema>;
+import { FeedbacksPrismaRepository } from "../../repositories/prisma/feedbacks-prisma-repository";
 
 export class CreateFeedbackUseCase {
-  constructor(private repo: FeedbacksPrismaRepository) {}
+  constructor(private feedbacksRepo = new FeedbacksPrismaRepository()) {}
 
   async execute(payload: unknown): Promise<Feedback> {
-    // valida e lança ZodError se inválido
-    const parsed = createFeedbackSchema.parse(payload) as CreateFeedbackInput;
+    // Schema local de validação
+    // trocar para um arquivo separado
+    const schema = z.object({
+      titulo: z.string().min(3, "O título deve ter pelo menos 3 caracteres"),
+      descricao: z.string().min(10, "A descrição deve ter pelo menos 10 caracteres"),
+      categoria: z.enum(["UI","UX","Feature","Bug","Performance","Other"]),
+      status: z.enum(["suggestion","planned","in_progress","done"]).optional(),
+      comments: z.number().default(0),
+    });
 
-    // aplica default de negócio
-    const data: CreateFeedbackDTO = {
-      titulo: parsed.titulo,
-      descricao: parsed.descricao,
-      categoria: parsed.categoria,
-      status: parsed.status ?? "suggestion",
+   
+    const validated = schema.parse(payload);
+
+    // Monta o objeto final que o repositório espera
+    const data = {
+      titulo: validated.titulo,
+      descricao: validated.descricao,
+      categoria: validated.categoria,
+      status: validated.status ?? "suggestion",
     };
 
-    // cria via repositório (Prisma cuidará de id e timestamps)
-    const created = await this.repo.create(data);
-    return created;
+    
+    return this.feedbacksRepo.create(data);
   }
 }

@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { DeleteCommentUseCase } from "../../use-cases/comments/deleteComment";
+import { formatNotFound, formatInternalError } from "../../utils/errors";
 
 interface RequestParams {
   idcomment: string;
@@ -17,11 +18,9 @@ export async function deleteCommentController(
 
     return reply.status(204).send();
   } catch (err: any) {
-    return reply.status(500).send({
-      error: {
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Erro inesperado",
-      },
-    });
+    if (err.code === "NOT_FOUND") {
+      return reply.status(404).send(formatNotFound());
+    }
+    return reply.status(500).send(formatInternalError());
   }
 }

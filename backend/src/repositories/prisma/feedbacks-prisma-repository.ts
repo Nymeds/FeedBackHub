@@ -10,17 +10,32 @@ export interface CreateFeedbackDTO {
 
 export class FeedbacksPrismaRepository {
   // CREATE
-  async create(data: CreateFeedbackDTO): Promise<Feedback> {
-    const now = new Date().toISOString();
-    return prisma.feedback.create({
-      data: {
-        ...data,
-        status: data.status ?? "suggestion",
-        createdAt: now,
-        updatedAt: now,
-      },
-    });
-  }
+  async create(data: CreateFeedbackDTO): Promise<any> {
+  const now = new Date();
+
+  const feedback = await prisma.feedback.create({
+    data: {
+      ...data,
+      status: data.status ?? "suggestion",
+      createdAt: now,
+      updatedAt: now,
+    },
+    include: {
+      _count: { select: { comments: true } },
+    },
+  });
+
+  return {
+    idfeedback: feedback.idfeedback,
+    titulo: feedback.titulo,
+    descricao: feedback.descricao,
+    categoria: feedback.categoria,
+    status: feedback.status,
+    createdAt: feedback.createdAt,
+    updatedAt: feedback.updatedAt,
+    
+  };
+}
 
   // LIST + PAGINAÇÃO + BUSCA + COMMENTS COUNT
   async findAll(params: { page?: number; pageSize?: number; q?: string }) {

@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { UpdateCommentUseCase } from "../../use-cases/comments/updateComment";
+import { formatValidationError, formatNotFound, formatInternalError } from "../../utils/errors";
 
 interface RequestBody {
   autor?: string;
@@ -23,24 +24,22 @@ export async function updateCommentController(
 
     return reply.status(200).send(updated);
   } catch (err: any) {
-    if (err.name === "ZodError") {
-      return reply.status(400).send({
-        error: {
-          code: "VALIDATION_ERROR",
-          message: "Dados inválidos",
-          details: err.errors.map((e: any) => ({
-            field: e.path.join("."),
-            message: e.message,
-          })),
-        },
-      });
+    // Validação 
+    if (err.name === "ZodError" && Array.isArray(err.issues)) {
+      const details = err.issues.map((e: any) => ({
+        field: e.path.join("."),
+        message: e.message,
+      }));
+      return reply.status(400).send(formatValidationError(details));
     }
 
-    return reply.status(500).send({
-      error: {
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Erro inesperado",
-      },
-    });
+    // Comentário não encontrado
+    if (err.code === "NOT_FOUND") {
+      return reply.status(404).send(formatNotFound());
+    }
+
+    // Erro inesperado
+    console.error(err);
+    return reply.status(500).send(formatInternalError());
   }
 }

@@ -1,8 +1,8 @@
-// src/controllers/feedbacks/update.ts
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ZodError } from "zod";
 import { UpdateFeedbackUseCase } from "../../use-cases/feedback/updateFeedBack";
 import { FeedbacksPrismaRepository } from "../../repositories/prisma/feedbacks-prisma-repository";
+import { formatValidationError, formatNotFound, formatInternalError } from "../../utils/errors";
 
 type Body = {
   titulo?: string;
@@ -20,37 +20,25 @@ export async function updateFeedbackController(
   const { idfeedback } = request.params;
   const data = request.body;
 
-  const feedbackRepo = new FeedbacksPrismaRepository();
-  const updateUseCase = new UpdateFeedbackUseCase(feedbackRepo);
+  const repo = new FeedbacksPrismaRepository();
+  const useCase = new UpdateFeedbackUseCase(repo);
 
   try {
-    const updatedFeedback = await updateUseCase.execute(idfeedback, data);
-
-    
-    return reply.status(200).send(updatedFeedback);
+    const updated = await useCase.execute(idfeedback, data);
+    return reply.status(200).send(updated);
   } catch (err: any) {
-    // Validação Zod
     if (err instanceof ZodError) {
       const details = err.issues.map((i) => ({
         field: i.path.join("."),
         message: i.message,
       }));
-      return reply.status(400).send({
-        error: { code: "VALIDATION_ERROR", message: "Dados inválidos", details },
-      });
+      return reply.status(400).send(formatValidationError(details));
     }
 
-    // Prisma: registro não encontrado
     if (err?.code === "P2025") {
-      return reply.status(404).send({
-        error: { code: "NOT_FOUND", message: "Feedback não encontrado", details: [] },
-      });
+      return reply.status(404).send(formatNotFound());
     }
 
-    // Outros erros
-    request.log?.error?.(err);
-    return reply.status(500).send({
-      error: { code: "INTERNAL_SERVER_ERROR", message: "Erro inesperado", details: [] },
-    });
+    return reply.status(500).send(formatInternalError());
   }
 }

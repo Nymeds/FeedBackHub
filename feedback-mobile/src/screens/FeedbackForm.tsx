@@ -7,7 +7,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Text
+  Text,
 } from "react-native";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import * as yup from "yup";
@@ -16,16 +16,33 @@ import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { Picker } from "@react-native-picker/picker";
 
 import { RootStackParamList } from "../navigation/AppStack";
-import { createFeedback, getFeedbackById, updateFeedback } from "../api/feedbacks";
+import {
+  createFeedback,
+  getFeedbackById,
+  updateFeedback,
+  deleteFeedback, // <-- importa a função de deletar
+} from "../api/feedbacks";
 import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
 import { CATEGORIAS, STATUS, Categoria, Status } from "../utils/enums";
 
 const feedbackSchema = yup.object({
-  titulo: yup.string().min(3, "Mínimo 3 caracteres").required("Título obrigatório"),
-  descricao: yup.string().min(10, "Mínimo 10 caracteres").required("Descrição obrigatória"),
-  categoria: yup.string().oneOf(CATEGORIAS as unknown as string[], "Categoria inválida").required(),
-  status: yup.string().oneOf(STATUS as unknown as string[], "Status inválido").required(),
+  titulo: yup
+    .string()
+    .min(3, "Mínimo 3 caracteres")
+    .required("Título obrigatório"),
+  descricao: yup
+    .string()
+    .min(10, "Mínimo 10 caracteres")
+    .required("Descrição obrigatória"),
+  categoria: yup
+    .string()
+    .oneOf(CATEGORIAS as unknown as string[], "Categoria inválida")
+    .required(),
+  status: yup
+    .string()
+    .oneOf(STATUS as unknown as string[], "Status inválido")
+    .required(),
 });
 
 type FeedbackFormData = {
@@ -35,13 +52,19 @@ type FeedbackFormData = {
   status: Status;
 };
 
+
 export default function FeedbackForm() {
   const route = useRoute<RouteProp<RootStackParamList, "FeedbackForm">>();
   const navigation = useNavigation<any>();
   const { idfeedback } = route.params || {};
   const isEdit = !!idfeedback;
 
-  const { control, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FeedbackFormData>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<FeedbackFormData>({
     //@ts-ignore
     resolver: yupResolver(feedbackSchema),
     defaultValues: {
@@ -55,8 +78,10 @@ export default function FeedbackForm() {
   useEffect(() => {
     if (isEdit) {
       getFeedbackById(idfeedback!)
-        .then(res => reset(res.data))
-        .catch(() => Alert.alert("Erro", "Não foi possível carregar o feedback."));
+        .then((res) => reset(res.data))
+        .catch(() =>
+          Alert.alert("Erro", "Não foi possível carregar o feedback.")
+        );
     }
   }, [idfeedback]);
 
@@ -69,7 +94,7 @@ export default function FeedbackForm() {
         await createFeedback(data);
         Alert.alert("Sucesso", "Feedback criado!");
       }
-      navigation.goBack();
+      navigation.navigate("FeedbackList");
     } catch {
       Alert.alert("Erro", "Não foi possível salvar o feedback.");
     }
@@ -113,7 +138,9 @@ export default function FeedbackForm() {
                   ))}
                 </Picker>
               </View>
-              {errors.categoria && <Text style={styles.errorText}>{errors.categoria.message}</Text>}
+              {errors.categoria && (
+                <Text style={styles.errorText}>{errors.categoria.message}</Text>
+              )}
             </View>
           )}
         />
@@ -132,7 +159,9 @@ export default function FeedbackForm() {
                   ))}
                 </Picker>
               </View>
-              {errors.status && <Text style={styles.errorText}>{errors.status.message}</Text>}
+              {errors.status && (
+                <Text style={styles.errorText}>{errors.status.message}</Text>
+              )}
             </View>
           )}
         />
@@ -163,6 +192,8 @@ export default function FeedbackForm() {
     </KeyboardAvoidingView>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   scrollContainer: {

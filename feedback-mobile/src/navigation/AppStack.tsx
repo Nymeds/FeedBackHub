@@ -2,8 +2,8 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import FeedbackList from "../screens/FeedbackList";
 import AppHeader from "../components/AppHeader";
-// import FeedbackDetail from "../screens/FeedbackDetail";
 import FeedbackForm from "../screens/FeedbackForm";
+import FeedbackDetails from "../screens/FeedbackDetails";
 
 export type RootStackParamList = {
   FeedbackList: undefined;
@@ -23,41 +23,50 @@ export default function AppStack() {
           header: () => (
             <AppHeader
               title="Feedbacks"
-              onBack={undefined} 
+              onBack={undefined}
             />
           ),
         })}
       />
 
-    
-      {/*
-      <Stack.Screen
-        name="FeedbackDetail"
-        component={FeedbackDetail}
-        options={({ navigation }) => ({
-          header: () => (
+            <Stack.Screen
+            name="FeedbackDetail"
+            component={FeedbackDetails}
+            options={({ navigation, route }) => ({
+            header: () => (
             <AppHeader
-              title="Detalhes"
-              onBack={() => navigation.goBack()}
-              onEdit={handleEdit} // função de editar
+                title="Detalhes"
+                onBack={() => navigation.goBack()}
+                onEdit={() =>
+                navigation.navigate("FeedbackForm", {
+                    idfeedback: (route.params as any)?.idfeedback,
+                })
+                }
             />
-          ),
+            ),
         })}
-      />
-        */}
-      <Stack.Screen
-        name="FeedbackForm"
-        component={FeedbackForm}
-        options={({ navigation }) => ({
-          header: () => (
-            <AppHeader
-              title="Criar / Editar Feedback"
-              onBack={() => navigation.goBack()}
-            />
-          ),
-        })}
-      />
-      
+        />
+
+
+    <Stack.Screen
+  name="FeedbackForm"
+  component={FeedbackForm} 
+  options={({ navigation, route }) => {
+    const isEdit = !!(route.params as any)?.idfeedback;
+    return {
+      header: () => (
+        <AppHeader
+          title={isEdit ? "Editar Feedback" : "Criar Feedback"}
+          onBack={() => navigation.goBack()}
+          onDelete={isEdit ? () => (route.params as any)?.onDelete?.() : undefined}
+        />
+      ),
+    };
+  }}
+/>
+
+
+
     </Stack.Navigator>
   );
 }

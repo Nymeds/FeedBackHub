@@ -22,9 +22,9 @@ export function useComments(idfeedback: string) {
   }, [idfeedback]);
 
   const addComment = useCallback(
-    async (texto: string, autor?: string) => {
+    async (conteudo: string, autor?: string) => {
       try {
-        const newComment = await createComment(idfeedback, { texto, autor });
+        const newComment = await createComment(idfeedback, { conteudo, autor });
         setComments((prev) => [newComment, ...prev]); 
       } catch (err) {
         console.log(err);

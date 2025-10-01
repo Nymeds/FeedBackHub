@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Comment } from "../api/comments";
 import ErrorToast from "./ToastCard";
@@ -51,20 +51,34 @@ export default function CommentCard({ comment, idfeedback, onEdit, onDelete }: C
   };
 
   // Deletar comentário
-  const handleDelete = async () => {
-    setDeleting(true);
-    try {
-      await onDelete(comment.idcomment);
-    } catch (err: any) {
-      if (err.details?.length > 0) {
-        showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
-      } else {
-        showToast(err.message || "Erro desconhecido");
-      }
-    } finally {
-      setDeleting(false);
-    }
-  };
+
+const handleDelete = async () => {
+  Alert.alert(
+    "Confirmação",
+    "Deseja realmente deletar este comentário?",
+    [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Deletar",
+        style: "destructive",
+        onPress: async () => {
+          setDeleting(true);
+          try {
+            await onDelete(comment.idcomment);
+          } catch (err: any) {
+            if (err.details?.length > 0) {
+              showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
+            } else {
+              showToast(err.message || "Erro desconhecido");
+            }
+          } finally {
+            setDeleting(false);
+          }
+        },
+      },
+    ]
+  );
+};
 
   return (
     <View style={styles.card}>
@@ -113,7 +127,7 @@ export default function CommentCard({ comment, idfeedback, onEdit, onDelete }: C
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#f1f1f1",
+    backgroundColor: "#ffffffff",
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,

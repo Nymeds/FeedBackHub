@@ -4,7 +4,6 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Text,
@@ -20,11 +19,12 @@ import {
   createFeedback,
   getFeedbackById,
   updateFeedback,
-  deleteFeedback, // <-- importa a função de deletar
+  deleteFeedback, 
 } from "../api/feedbacks";
 import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
 import { CATEGORIAS, STATUS, Categoria, Status } from "../utils/enums";
+import { useToast } from "../context/ToastProvider";
 
 const feedbackSchema = yup.object({
   titulo: yup
@@ -52,13 +52,12 @@ type FeedbackFormData = {
   status: Status;
 };
 
-
 export default function FeedbackForm() {
   const route = useRoute<RouteProp<RootStackParamList, "FeedbackForm">>();
   const navigation = useNavigation<any>();
   const { idfeedback } = route.params || {};
   const isEdit = !!idfeedback;
-
+  const { showToast } = useToast();
   const {
     control,
     handleSubmit,
@@ -79,24 +78,27 @@ export default function FeedbackForm() {
     if (isEdit) {
       getFeedbackById(idfeedback!)
         .then((res) => reset(res.data))
-        .catch(() =>
-          Alert.alert("Erro", "Não foi possível carregar o feedback.")
-        );
+        .catch(() => showToast("Não foi possível carregar o feedback."))
+        ;
     }
-  }, [idfeedback]);
+  }, [idfeedback, isEdit, reset, showToast]);
 
   const onSubmit: SubmitHandler<FeedbackFormData> = async (data) => {
     try {
       if (isEdit) {
         await updateFeedback(idfeedback!, data);
-        Alert.alert("Sucesso", "Feedback atualizado!");
+        showToast("Feedback atualizado!");
       } else {
         await createFeedback(data);
-        Alert.alert("Sucesso", "Feedback criado!");
+        showToast("Feedback criado!");
       }
       navigation.navigate("FeedbackList");
-    } catch {
-      Alert.alert("Erro", "Não foi possível salvar o feedback.");
+    } catch (err : any) {
+      if (err.details?.length > 0) {
+        showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
+      } else {
+         showToast(err.message || "Erro desconhecido");
+      }
     }
   };
 
@@ -199,23 +201,25 @@ const styles = StyleSheet.create({
   scrollContainer: {
     padding: 16,
     paddingBottom: 0,
+    backgroundColor: "#f0f4f8", 
   },
   bottomButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: "#ccc",
-    backgroundColor: "#fff",
+    borderTopColor: "#d1d5db", 
+    backgroundColor: "#ffffff", 
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#cbd5e1", 
     borderRadius: 8,
     overflow: "hidden",
+    backgroundColor: "#ffffff", 
   },
   errorText: {
-    color: "red",
-    marginTop: 4,
+    color: "#dc2626",
+    marginTop: 6,
   },
 });

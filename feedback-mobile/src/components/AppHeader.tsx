@@ -1,18 +1,44 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; 
 
 interface AppHeaderProps {
   title: string;
   onBack?: () => void;
   onEdit?: () => void;
-  onDelete?: () => void;
+  onDelete?: () => Promise<void>;
 }
 
 export default function AppHeader({ title, onBack, onEdit, onDelete }: AppHeaderProps) {
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!onDelete) return;
+    Alert.alert(
+      "Confirmação",
+      "Deseja realmente deletar este feedback?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Deletar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setDeleting(true);
+              await onDelete();
+            } catch (err: any) {
+              Alert.alert("Erro", err?.message || "Erro ao deletar");
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
-      {/* Botão de voltar */}
       {onBack ? (
         <TouchableOpacity onPress={onBack} style={styles.button}>
           <Ionicons name="arrow-back" size={24} color="#000" />
@@ -21,20 +47,13 @@ export default function AppHeader({ title, onBack, onEdit, onDelete }: AppHeader
         <View style={styles.button} />
       )}
 
-      {/* Título centralizado */}
-      <Text 
-        style={styles.title} 
-        numberOfLines={1} 
-        ellipsizeMode="tail"
-      >
+      <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
         {title}
       </Text>
 
-
-      {/* Botão de ação à direita: prioriza apagar > editar */}
       {onDelete ? (
-        <TouchableOpacity onPress={onDelete} style={styles.button}>
-          <Ionicons name="trash-outline" size={24} color="#000" />
+        <TouchableOpacity onPress={handleDelete} style={styles.button} disabled={deleting}>
+          <Ionicons name="trash-outline" size={24} color={deleting ? "#aaa" : "#000"} />
         </TouchableOpacity>
       ) : onEdit ? (
         <TouchableOpacity onPress={onEdit} style={styles.button}>

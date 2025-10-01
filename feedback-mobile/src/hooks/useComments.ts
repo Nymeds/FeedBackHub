@@ -16,7 +16,7 @@ export function useComments(idfeedback: string) {
     } catch (err: any) {
       console.log(err);
       setError("Não foi possível carregar os comentários.");
-      // Repassa o erro para o componente, se necessário
+     
       throw err;
     } finally {
       setLoading(false);

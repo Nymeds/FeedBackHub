@@ -1,15 +1,18 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Comment } from "../api/comments";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Comment } from "../api/comments";
+import ErrorToast from "./ToastCard";
+import { useToast } from "../context/ToastProvider";
 
 interface CommentCardProps {
   comment: Comment;
-  onEdit: (comment: Comment) => void;
-  onDelete: (comment: Comment) => void;
+  idfeedback: string;
+  onEdit: (idcomment: string, texto: string) => Promise<any>;
+  onDelete: (idcomment: string) => Promise<any>;
 }
 
-export default function CommentCard({ comment, onEdit, onDelete }: CommentCardProps) {
+export default function CommentCard({ comment, idfeedback, onEdit, onDelete }: CommentCardProps) {
   const formattedDate = new Date(comment.createdAt).toLocaleString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
@@ -17,21 +20,93 @@ export default function CommentCard({ comment, onEdit, onDelete }: CommentCardPr
     minute: "2-digit",
   });
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [textUpdate, setTextUpdate] = useState(comment.conteudo);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const { showToast } = useToast();
+  // Salvar edição
+  const handleSave = async () => {
+    if (!textUpdate.trim()) return;
+    setSaving(true);
+    try {
+      await onEdit(comment.idcomment, textUpdate);
+      setIsEditing(false);
+    } catch (err: any) {
+      if (err.details?.length > 0) {
+        showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
+      } else {
+         showToast(err.message || "Erro desconhecido");
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Cancelar edição
+  const handleCancel = () => {
+    setTextUpdate(comment.conteudo);
+    setIsEditing(false);
+  };
+
+  // Deletar comentário
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await onDelete(comment.idcomment);
+    } catch (err: any) {
+      if (err.details?.length > 0) {
+        showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
+      } else {
+        showToast(err.message || "Erro desconhecido");
+      }
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.author}>{comment.autor || "Anônimo"} - {formattedDate}</Text>
         <View style={styles.actions}>
-          <TouchableOpacity onPress={() => onEdit(comment)} style={styles.iconButton}>
-            <Ionicons name="create-outline" size={20} color="#007bff" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => onDelete(comment)} style={styles.iconButton}>
-            <Ionicons name="trash-outline" size={20} color="#ff4d4d" />
-          </TouchableOpacity>
+          {isEditing ? (
+            <>
+              <TouchableOpacity onPress={handleSave} style={styles.iconButton} disabled={saving}>
+                {saving ? <ActivityIndicator size="small" /> : <Ionicons name="checkmark-outline" size={20} color="#28a745" />}
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleCancel} style={styles.iconButton} disabled={saving}>
+                <Ionicons name="close-outline" size={20} color="#ff4d4d" />
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity onPress={() => setIsEditing(true)} style={styles.iconButton}>
+                <Ionicons name="create-outline" size={20} color="#007bff" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleDelete} style={styles.iconButton} disabled={deleting}>
+                {deleting ? <ActivityIndicator size="small" /> : <Ionicons name="trash-outline" size={20} color="#ff4d4d" />}
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </View>
-    
-      <Text style={styles.text}>{comment.conteudo}</Text>
+
+      {isEditing ? (
+        <TextInput
+          style={styles.input}
+          value={textUpdate}
+          onChangeText={setTextUpdate}
+          multiline
+          editable={!saving}
+        />
+      ) : (
+        <Text style={styles.text}>{comment.conteudo}</Text>
+      )}
+
+      {/* Toast de erro */}
+      {errorMessage ? <ErrorToast message={errorMessage} onHide={() => setErrorMessage("")} /> : null}
     </View>
   );
 }
@@ -62,6 +137,16 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 14,
     marginTop: 4,
+    color: "#333",
+  },
+  input: {
+    fontSize: 14,
+    marginTop: 4,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 6,
+    padding: 6,
+    backgroundColor: "#fff",
     color: "#333",
   },
 });

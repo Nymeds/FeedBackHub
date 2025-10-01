@@ -23,7 +23,7 @@ export function useFeedbacks(initialPage = 1, limit = 10) {
     }
   }, [page, limit, search]);
 
-  // Debounce para a busca
+ 
   const handleSearch = useCallback(
     debounce((text: string) => {
       setSearch(text);

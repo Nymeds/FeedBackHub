@@ -13,6 +13,12 @@ interface FeedbackCardProps {
   onPress?: () => void;
 }
 
+// Função para truncar texto
+const truncateText = (text: string, maxLength: number) => {
+  if (!text) return "";
+  return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+};
+
 export default function FeedbackCard({
   titulo,
   descricao,
@@ -23,7 +29,6 @@ export default function FeedbackCard({
   createdAt,
   onPress,
 }: FeedbackCardProps) {
-
   // Formatar data
   const formattedDate = new Date(createdAt).toLocaleDateString("pt-BR", {
     day: "2-digit",
@@ -35,15 +40,25 @@ export default function FeedbackCard({
     <TouchableOpacity style={styles.card} onPress={onPress}>
       {/* Topo: Categoria e Status */}
       <View style={styles.top}>
-        <Text style={styles.category}>{categoria}</Text>
-        <Text style={styles.status}>{status.replace("_", " ")}</Text>
+        <Text style={styles.category}>
+          {truncateText(categoria, 15)}
+        </Text>
+        <Text style={styles.status}>
+          {truncateText(status.replace("_", " "), 12)}
+        </Text>
       </View>
 
       {/* Meio: Autor, Título e Descrição */}
       <View style={styles.middle}>
-        <Text style={styles.author}>{autor}</Text>
-        <Text style={styles.title}>{titulo}</Text>
-        <Text style={styles.description} numberOfLines={2}>{descricao}</Text>
+        <Text style={styles.author}>
+          {truncateText(autor, 18)}
+        </Text>
+        <Text style={styles.title}>
+          {truncateText(titulo, 30)}
+        </Text>
+        <Text style={styles.description}>
+          {truncateText(descricao, 80)}
+        </Text>
       </View>
 
       {/* Rodapé: Comentários e Data */}
@@ -52,8 +67,14 @@ export default function FeedbackCard({
           <MaterialIcons name="comment" size={16} color="#555" />
           <Text style={styles.commentsText}>{commentsCount}</Text>
         </View>
-        <Text style={styles.date}>{formattedDate}</Text>
+
+        {/* Agrupando ícone + data */}
+        <View style={styles.dateWrapper}>
+          <MaterialIcons name="calendar-today" size={16} color="#555" />
+          <Text style={styles.date}>{formattedDate}</Text>
+        </View>
       </View>
+
     </TouchableOpacity>
   );
 }
@@ -81,12 +102,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "bold",
     color: "#007BFF",
+    maxWidth: "70%",
   },
   status: {
     fontSize: 12,
     fontWeight: "bold",
     color: "#28a745",
     textTransform: "capitalize",
+    maxWidth: "30%",
+    textAlign: "right",
   },
   middle: {
     marginBottom: 6,
@@ -120,8 +144,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#555",
   },
-  date: {
-    fontSize: 12,
-    color: "#555",
-  },
+  dateWrapper: {
+  flexDirection: "row",
+  alignItems: "center",
+},
+date: {
+  fontSize: 12,
+  color: "#555",
+  marginLeft: 4,
+},
+
 });

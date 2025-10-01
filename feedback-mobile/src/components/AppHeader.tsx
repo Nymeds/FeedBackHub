@@ -22,7 +22,14 @@ export default function AppHeader({ title, onBack, onEdit, onDelete }: AppHeader
       )}
 
       {/* Título centralizado */}
-      <Text style={styles.title}>{title}</Text>
+      <Text 
+        style={styles.title} 
+        numberOfLines={1} 
+        ellipsizeMode="tail"
+      >
+        {title}
+      </Text>
+
 
       {/* Botão de ação à direita: prioriza apagar > editar */}
       {onDelete ? (

@@ -1,72 +1,77 @@
-import { useState, useEffect, useCallback } from "react";
-import { getComments, createComment, deleteComment, updateComment, Comment } from "../api/comments";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/hooks/useComments.ts
+import { useEffect, useState, useCallback } from "react";
+import { getComments, createComment, updateComment, deleteComment } from "../api/comments";
+import type { Comment } from "../api/comments";
 
 export function useComments(idfeedback: string) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
 
+  // Busca comentários
   const fetchComments = useCallback(async () => {
-    if (!idfeedback) return;
     setLoading(true);
-    setError("");
+    setError(null);
     try {
-      const res = await getComments(idfeedback);
-      setComments(res.items || []);
+      const data = await getComments(idfeedback);
+      setComments(data.items);
     } catch (err: any) {
-      console.log(err);
-      setError("Não foi possível carregar os comentários.");
-     
-      throw err;
+      console.error("Erro ao buscar comentários:", err);
+      setError(err.message || "Erro desconhecido");
     } finally {
       setLoading(false);
     }
   }, [idfeedback]);
 
-  const addComment = useCallback(
-    async (conteudo: string, autor?: string) => {
-      try {
-        const newComment = await createComment(idfeedback, { conteudo, autor });
-        setComments((prev) => [newComment, ...prev]);
-        return newComment;
-      } catch (err: any) {
-        console.log("Erro ao criar comentário:", err);
-        throw err; 
-      }
-    },
-    [idfeedback]
-  );
-
-  const editComment = useCallback(
-    async (idcomment: string, conteudo: string) => {
-      try {
-        const updated = await updateComment(idcomment, { conteudo });
-        setComments((prev) => prev.map((c) => (c.idcomment === idcomment ? updated : c)));
-        return updated;
-      } catch (err: any) {
-        console.log("Erro ao atualizar comentário:", err);
-        throw err;
-      }
-    },
-    []
-  );
-
-  const removeComment = useCallback(
-    async (idcomment: string) => {
-      try {
-        await deleteComment(idcomment);
-        setComments((prev) => prev.filter((c) => c.idcomment !== idcomment));
-      } catch (err: any) {
-        console.log("Erro ao deletar comentário:", err);
-        throw err;
-      }
-    },
-    []
-  );
-
   useEffect(() => {
-    fetchComments().catch(() => {}); 
+    fetchComments();
   }, [fetchComments]);
 
-  return { comments, loading, error, fetchComments, addComment, editComment, removeComment };
+  // Adiciona comentário
+  const addComment = async (conteudo: string, autor?: string) => {
+    try {
+      const newComment = await createComment(idfeedback, { conteudo, autor });
+      setComments((prev) => [...prev, newComment]);
+    } catch (err: any) {
+      console.error("Erro ao criar comentário:", err);
+      throw err;
+    }
+  };
+
+  // Edita comentário
+  const editComment = async (idcomment: string | undefined, conteudo: string) => {
+    if (!idcomment) throw new Error("ID do comentário é inválido");
+    try {
+      const updated = await updateComment(idcomment, { conteudo });
+      setComments((prev) =>
+        prev.map((c) => (c.idcomment === idcomment ? updated : c))
+      );
+    } catch (err: any) {
+      console.error("Erro ao atualizar comentário:", err);
+      throw err;
+    }
+  };
+
+  // Remove comentário
+  const removeComment = async (idcomment: string | undefined) => {
+    if (!idcomment) throw new Error("ID do comentário é inválido");
+    try {
+      await deleteComment(idcomment);
+      setComments((prev) => prev.filter((c) => c.idcomment !== idcomment));
+    } catch (err: any) {
+      console.error("Erro ao deletar comentário:", err);
+      throw err;
+    }
+  };
+
+  return {
+    comments,
+    loading,
+    error,
+    fetchComments,
+    addComment,
+    editComment,
+    removeComment,
+  };
 }

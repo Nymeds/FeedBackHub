@@ -1,20 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import  type {Comment } from "../../api/comments";
+import type { Comment } from "../../api/comments";
+import { useToast } from "../../context/ToastProvider";
+import ErrorToast from "./ToastCard";
+import { Check, X, Edit, Trash2 } from "lucide-react";
 
 interface CommentCardProps {
   comment: Comment;
   idfeedback: string;
-  onEdit: (idcomment: string, conteudo: string) => Promise<any>;
+  onEdit: (idcomment: string, texto: string) => Promise<any>;
   onDelete: (idcomment: string) => Promise<any>;
 }
 
 export default function CommentCard({ comment, onEdit, onDelete }: CommentCardProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [textUpdate, setTextUpdate] = useState(comment.conteudo);
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-
   const formattedDate = new Date(comment.createdAt).toLocaleString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
@@ -22,14 +20,25 @@ export default function CommentCard({ comment, onEdit, onDelete }: CommentCardPr
     minute: "2-digit",
   });
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [textUpdate, setTextUpdate] = useState(comment.conteudo);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const { showToast } = useToast();
+
   const handleSave = async () => {
     if (!textUpdate.trim()) return;
     setSaving(true);
     try {
       await onEdit(comment.idcomment, textUpdate);
       setIsEditing(false);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      if (err.details?.length > 0) {
+        showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
+      } else {
+        showToast(err.message || "Erro desconhecido");
+      }
     } finally {
       setSaving(false);
     }
@@ -41,69 +50,78 @@ export default function CommentCard({ comment, onEdit, onDelete }: CommentCardPr
   };
 
   const handleDelete = async () => {
-    if (!confirm("Deseja realmente deletar este comentário?")) return;
+    if (!window.confirm("Deseja realmente deletar este comentário?")) return;
     setDeleting(true);
     try {
       await onDelete(comment.idcomment);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      if (err.details?.length > 0) {
+        showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
+      } else {
+        showToast(err.message || "Erro desconhecido");
+      }
     } finally {
       setDeleting(false);
     }
   };
 
   return (
-    <div className="bg-white border rounded-lg p-3 shadow-sm">
+    <div className="bg-white rounded-lg p-4 shadow-sm mb-2">
       <div className="flex justify-between items-center mb-2">
-        <span className="font-semibold">{comment.autor || "Anônimo"}</span>
-        <span className="text-xs text-gray-500">{formattedDate}</span>
+        <span className="font-bold text-sm">
+          {comment.autor || "Anônimo"} - {formattedDate}
+        </span>
+        <div className="flex gap-2">
+          {isEditing ? (
+            <>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="text-green-600 hover:text-green-800"
+              >
+                {saving ? "..." : <Check size={18} />}
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={saving}
+                className="text-red-600 hover:text-red-800"
+              >
+                <X size={18} />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => setIsEditing(true)}
+                className="text-blue-600 hover:text-blue-800"
+              >
+                <Edit size={18} />
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="text-red-600 hover:text-red-800"
+              >
+                {deleting ? "..." : <Trash2 size={18} />}
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {isEditing ? (
-        <>
-          <textarea
-            className="w-full border rounded px-2 py-1 mb-2"
-            value={textUpdate}
-            onChange={(e) => setTextUpdate(e.target.value)}
-            disabled={saving}
-          />
-          <div className="flex gap-2">
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 disabled:opacity-50"
-            >
-              {saving ? "Salvando..." : "Salvar"}
-            </button>
-            <button
-              onClick={handleCancel}
-              disabled={saving}
-              className="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400"
-            >
-              Cancelar
-            </button>
-          </div>
-        </>
+        <textarea
+          className="w-full border rounded p-2 text-sm"
+          value={textUpdate}
+          onChange={(e) => setTextUpdate(e.target.value)}
+          rows={3}
+          disabled={saving}
+        />
       ) : (
-        <>
-          <p className="text-gray-800 mb-2">{comment.conteudo}</p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setIsEditing(true)}
-              className="text-blue-600 text-sm hover:underline"
-            >
-              Editar
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="text-red-600 text-sm hover:underline disabled:opacity-50"
-            >
-              {deleting ? "Deletando..." : "Deletar"}
-            </button>
-          </div>
-        </>
+        <p className="text-gray-700 text-sm">{comment.conteudo}</p>
       )}
+
+      {errorMessage && <ErrorToast message={errorMessage} onHide={() => setErrorMessage("")} />}
     </div>
   );
 }

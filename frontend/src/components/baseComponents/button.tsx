@@ -2,14 +2,13 @@ import { tv, type VariantProps } from "tailwind-variants";
 import type { ButtonHTMLAttributes } from "react";
 
 const buttonVariants = tv({
-  base: "px-4 py-2 rounded font-medium transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed",
+  base: "rounded font-semibold transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed",
   variants: {
     variant: {
-      primary: "bg-accent-brand text-white hover:bg-accent-brand-light",
-      secondary: "bg-background-secondary text-white hover:bg-background-tertiary",
-      danger: "bg-background-danger text-white hover:bg-accent-red",
-      ghost:
-        "bg-transparent text-accent-paragraph hover:bg-white/5 hover:text-accent-brand border border-transparent hover:border-border-active",
+      primary: "bg-blue-600 text-white hover:bg-blue-700",
+      secondary: "bg-gray-300 text-gray-800 hover:bg-gray-400",
+      danger: "bg-red-600 text-white hover:bg-red-700",
+      ghost: "bg-transparent text-gray-800 hover:bg-gray-100 border border-gray-300",
     },
     size: {
       sm: "text-sm px-3 py-1.5",

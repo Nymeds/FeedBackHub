@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from "react";
 import { getFeedbacks } from "../api/feedback";
 import debounce from "lodash.debounce";

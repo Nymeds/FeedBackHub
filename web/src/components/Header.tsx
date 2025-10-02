@@ -1,20 +1,21 @@
-import Card from "./Card";
+import { Card } from "./Card";
 
 interface HeaderProps {
-  title: string;
-  subtitle?: string;
-  date?: string;
-  className?: string;
+  totalFeedbacks?: number;
 }
 
-export default function Header({ title, subtitle, date, className }: HeaderProps) {
+export function Header({ totalFeedbacks }: HeaderProps) {
   return (
-    <div className={`w-full max-w-3xl mx-auto ${className ?? ""}`}>
-      <Card variant="secondary" size="lg" className="flex flex-col items-center text-center">
-        <h1 className="text-3xl font-bold mb-2">{title}</h1>
-        {subtitle && <p className="text-gray-600 dark:text-gray-300 mb-1">{subtitle}</p>}
-        {date && <p className="text-gray-500 dark:text-gray-400 text-sm">{date}</p>}
-      </Card>
-    </div>
+    <Card variant="tertiary" size="lg" className="mb-6 text-center">
+      <h1 className="text-3xl font-semibold leading-tight text-gray-900 mb-2">
+        FeedbackHub
+      </h1>
+      <p className="text-gray-700 text-sm">Bem-vindo(a) ao FeedbackHub!</p>
+      {totalFeedbacks !== undefined && (
+        <p className="mt-2 text-gray-600 text-sm font-medium">
+          Total de feedbacks: {totalFeedbacks}
+        </p>
+      )}
+    </Card>
   );
 }

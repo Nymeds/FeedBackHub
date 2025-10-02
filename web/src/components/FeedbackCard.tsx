@@ -1,28 +1,7 @@
 import type { HTMLAttributes } from "react";
-import { tv, type VariantProps } from "tailwind-variants";
-import { FaComment, FaCalendarAlt } from "react-icons/fa";
+import { FaComment, FaCalendarAlt, FaUser } from "react-icons/fa";
 
-const cardVariants = tv({
-  base: "rounded-2xl shadow-md p-4 transition-all hover:shadow-lg border cursor-pointer",
-  variants: {
-    variant: {
-      default: "bg-white border-gray-200 text-gray-900",
-    },
-    size: {
-      sm: "p-3 text-sm",
-      md: "p-4 text-base",
-      lg: "p-6 text-lg",
-    },
-  },
-  defaultVariants: {
-    variant: "default",
-    size: "md",
-  },
-});
-
-interface FeedbackCardProps
-  extends HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof cardVariants> {
+interface FeedbackCardProps extends HTMLAttributes<HTMLDivElement> {
   titulo: string;
   descricao: string;
   categoria: string;
@@ -33,7 +12,6 @@ interface FeedbackCardProps
   onClick?: () => void;
 }
 
-// Função de truncamento
 const truncateText = (text: string, maxLength: number) => {
   if (!text) return "";
   return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
@@ -47,8 +25,6 @@ export default function FeedbackCard({
   autor,
   commentsCount,
   createdAt,
-  variant,
-  size,
   className,
   onClick,
   ...props
@@ -59,52 +35,80 @@ export default function FeedbackCard({
     year: "numeric",
   });
 
-  // Definir cor do status dinamicamente
-  const statusColor = (() => {
-    switch (status.toLowerCase()) {
-      case "open":
-        return "text-green-600";
-      case "closed":
-        return "text-red-600";
-      case "in_progress":
-        return "text-yellow-600";
-      default:
-        return "text-gray-600";
+  // Status configuration
+  const statusConfig = {
+    open: {
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
+      border: "border-emerald-200",
+      dot: "bg-emerald-500",
+      label: "Aberto"
+    },
+    closed: {
+      bg: "bg-gray-50",
+      text: "text-gray-700",
+      border: "border-gray-200",
+      dot: "bg-gray-400",
+      label: "Fechado"
+    },
+    in_progress: {
+      bg: "bg-blue-50",
+      text: "text-blue-700",
+      border: "border-blue-200",
+      dot: "bg-blue-500",
+      label: "Em Andamento"
     }
-  })();
+  };
+
+  const statusKey = status.toLowerCase() as keyof typeof statusConfig;
+  const statusStyle = statusConfig[statusKey] || statusConfig.open;
 
   return (
     <div
-      className={cardVariants({ variant, size, className })}
+      className={`group bg-white border border-gray-200 rounded-xl p-5 cursor-pointer transition-all duration-200 hover:border-indigo-300 hover:shadow-md ${className || ""}`}
       onClick={onClick}
       {...props}
     >
-      {/* Topo: Categoria e Status */}
-      <div className="flex justify-between mb-2">
-        <span className="font-bold text-blue-600 max-w-[70%]">
-          {truncateText(categoria, 15)}
+      {/* Header: Categoria e Status */}
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <span className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1.5 rounded-lg border border-indigo-100">
+          <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
+          {truncateText(categoria, 20)}
         </span>
-        <span className={`font-bold capitalize max-w-[30%] text-right ${statusColor}`}>
-          {truncateText(status.replace("_", " "), 12)}
+        
+        <span className={`inline-flex items-center gap-1.5 ${statusStyle.bg} ${statusStyle.text} text-xs font-semibold px-3 py-1.5 rounded-lg border ${statusStyle.border}`}>
+          <span className={`w-1.5 h-1.5 ${statusStyle.dot} rounded-full`}></span>
+          {statusStyle.label}
         </span>
       </div>
 
-      {/* Meio: Autor, Título e Descrição */}
-      <div className="mb-2">
-        <p className="text-gray-500 font-semibold mb-1">{truncateText(autor, 18)}</p>
-        <h3 className="font-bold text-lg mb-1">{truncateText(titulo, 30)}</h3>
-        <p className="text-gray-700 text-sm">{truncateText(descricao, 80)}</p>
-      </div>
+      {/* Título */}
+      <h3 className="font-bold text-gray-900 text-lg mb-2 group-hover:text-indigo-600 transition-colors">
+        {titulo}
+      </h3>
 
-      {/* Rodapé: Comentários e Data */}
-      <div className="flex justify-between items-center mt-2">
-        <div className="flex items-center gap-1">
-          <FaComment className="text-gray-500" />
-          <span className="text-gray-500 text-sm">{commentsCount}</span>
+      {/* Descrição */}
+      <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2">
+        {descricao}
+      </p>
+
+      {/* Footer: Metadata */}
+      <div className="flex items-center justify-between gap-4 pt-4 border-t border-gray-100">
+        <div className="flex items-center gap-4 text-sm text-gray-500">
+          <div className="flex items-center gap-1.5">
+            <FaUser className="text-gray-400" size={12} />
+            <span className="font-medium">{truncateText(autor, 15)}</span>
+          </div>
+          
+          <div className="flex items-center gap-1.5">
+            <FaComment className="text-gray-400" size={12} />
+            <span className="font-medium">{commentsCount}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <FaCalendarAlt className="text-gray-500" />
-          <span className="text-gray-500 text-sm">{formattedDate}</span>
+
+        <div className="flex items-center gap-1.5 text-sm text-gray-500">
+          <FaCalendarAlt className="text-gray-400" size={12} />
+          <span>{formattedDate}</span>
         </div>
       </div>
     </div>

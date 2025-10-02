@@ -197,6 +197,14 @@ input::placeholder, textarea::placeholder {
   color: var(--color-text-muted);
 }
 
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Grid e flexbox utils */
 .grid {
   display: grid;

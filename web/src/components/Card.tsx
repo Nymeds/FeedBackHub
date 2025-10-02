@@ -1,42 +1,40 @@
-import type { ReactNode } from "react";
-import { tv, type VariantProps } from "tailwind-variants";
+import { tv } from "tailwind-variants";
+import React from "react";
 
-const cardVariants = tv({
-  base: "rounded-xl shadow-md transition hover:shadow-lg border",
+export const CardVariants = tv({
+  base: `rounded transition animate-pulse`,
   variants: {
     variant: {
-      default: "bg-white border-gray-200 text-gray-900",
-      primary: "bg-purple-600 text-white border-purple-600",
-      secondary: "bg-gray-100 text-gray-900 border-gray-200",
-      success: "bg-green-50 text-green-900 border-green-200",
-      warning: "bg-yellow-50 text-yellow-900 border-yellow-200",
-      error: "bg-red-50 text-red-900 border-red-200",
+      primary: "bg-white border border-gray-200",
+      secondary: "bg-gray-100 border border-gray-200",
+      tertiary: "bg-gray-200 border border-gray-300",
     },
     size: {
-      sm: "p-3",
-      md: "p-6",
-      lg: "p-8",
-    },
-    floating: {
-      true: "backdrop-blur-sm bg-white/10 border-white/20 shadow-lg",
+      none: "",
+      md: "p-3",
+      lg: "p-6",
     },
   },
   defaultVariants: {
-    variant: "default",
+    variant: "primary",
     size: "md",
-    floating: false,
   },
 });
 
-interface CardProps extends VariantProps<typeof cardVariants> {
-  children: ReactNode;
-  className?: string;
-}
+type SkeletonCardProps = React.HTMLAttributes<HTMLDivElement> & {
+  variant?: "primary" | "secondary" | "tertiary";
+  size?: "none" | "md" | "lg";
+};
 
-export default function Card({ children, variant, size, floating, className }: CardProps) {
+export function Card({ variant, size, className = "", ...props }: SkeletonCardProps) {
   return (
-    <div className={cardVariants({ variant, size, floating, className })}>
-      {children}
+    <div className={CardVariants({ variant, size, className })} {...props}>
+      <div className="h-3 bg-gray-300 rounded w-3/4 mb-3"></div>
+      <div className="h-10 bg-gray-300 rounded mb-4"></div>
+      <div className="flex items-center justify-between mt-auto">
+        <div className="h-6 bg-gray-300 rounded w-32"></div>
+        <div className="h-6 bg-gray-300 rounded w-16"></div>
+      </div>
     </div>
   );
 }

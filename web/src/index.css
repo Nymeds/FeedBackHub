@@ -30,8 +30,8 @@ align-items:stretch;
 
 /* topo */
 .fp-top {
-  min-height: 72px; 
-  padding: 0 16px;  
+  min-height: 72px; /* aumenta altura para caber o input */
+  padding: 0 16px;  /* padding horizontal */
   display: flex;
   align-items: center;
 }

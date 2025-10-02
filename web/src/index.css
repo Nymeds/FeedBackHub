@@ -1,3 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 :root{
 --bg:#f3f3f3;
 --card-bg:#ffffff;
@@ -27,18 +32,13 @@ align-items:stretch;
 
 
 /* topo */
-.fp-top{
-height:56px;
-background:#800018; /* vinho */
-border-radius:6px;
-box-shadow:0 6px 20px rgba(0,0,0,0.08);
-display:flex;
-align-items:center;
-justify-content:center;
-color:white;
-font-weight:600;
-letter-spacing:0.2px;
+.fp-top {
+  min-height: 72px; /* aumenta altura para caber o input */
+  padding: 0 16px;  /* padding horizontal */
+  display: flex;
+  align-items: center;
 }
+
 
 
 /* cartão grande */
@@ -59,13 +59,13 @@ font-weight:700;
 /* rodapé */
 .fp-bottom{
 height:52px;
-background:#00a3e6; /* azul */
+background:#08b9ff; /* azul */
 border-radius:6px;
 box-shadow:0 4px 14px rgba(0,0,0,0.06);
 display:flex;
 align-items:center;
 justify-content:center;
-color:white;
+color:rgb(255, 255, 255);
 font-weight:600;
 }
 

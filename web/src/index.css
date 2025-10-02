@@ -1,7 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import "tailwindcss";
 
 :root{
 --bg:#f3f3f3;
@@ -33,8 +30,8 @@ align-items:stretch;
 
 /* topo */
 .fp-top {
-  min-height: 72px; /* aumenta altura para caber o input */
-  padding: 0 16px;  /* padding horizontal */
+  min-height: 72px; 
+  padding: 0 16px;  
   display: flex;
   align-items: center;
 }

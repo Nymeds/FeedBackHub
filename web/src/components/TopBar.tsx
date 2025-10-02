@@ -5,10 +5,10 @@ export default function TopBar() {
     <div className="fp-top fp-card-inner px-4 min-h-[72px]">
       <SearchInput
         placeholder="Buscar feedback..."
-        size="md"
+        inputSize="md"
         variant="secondary"
         className="w-full"
-        onChange={(e) => console.log("a")}
+        onChange={(e) => console.log(e.target.value)}
       />
     </div>
   );

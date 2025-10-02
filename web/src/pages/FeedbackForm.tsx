@@ -105,8 +105,8 @@ export default function FeedbackForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-2xl mx-auto">
+    <div className="page-container">
+      <div className="page-content">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-800">
@@ -116,7 +116,7 @@ export default function FeedbackForm() {
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50"
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 shadow-sm"
             >
               {deleting ? "Deletando..." : "Deletar"}
             </button>
@@ -124,7 +124,6 @@ export default function FeedbackForm() {
         </div>
 
         {/* Form */}
-      
         <form onSubmit={
               //@ts-expect-error
             handleSubmit(onSubmit)} className="bg-white rounded-lg shadow-md p-6">
@@ -205,14 +204,14 @@ export default function FeedbackForm() {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
+              className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 shadow-sm"
             >
               Voltar
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 shadow-sm"
             >
               {isSubmitting
                 ? "Salvando..."

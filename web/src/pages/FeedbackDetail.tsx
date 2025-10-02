@@ -56,16 +56,20 @@ export default function FeedbackDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent"></div>
+      <div className="page-container">
+        <div className="page-content flex items-center justify-center min-h-[400px]">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent"></div>
+        </div>
       </div>
     );
   }
 
   if (!feedback) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Feedback não encontrado</p>
+      <div className="page-container">
+        <div className="page-content flex items-center justify-center min-h-[400px]">
+          <p className="text-gray-600">Feedback não encontrado</p>
+        </div>
       </div>
     );
   }
@@ -87,8 +91,8 @@ export default function FeedbackDetail() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="page-container">
+      <div className="page-content">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <button
@@ -99,7 +103,7 @@ export default function FeedbackDetail() {
           </button>
           <button
             onClick={() => navigate(`/feedback/edit/${id}`)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow-sm"
           >
             Editar
           </button>
@@ -123,7 +127,7 @@ export default function FeedbackDetail() {
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-xs text-gray-500 mb-2">Descrição</p>
             <p className="text-gray-700 mb-4">{feedback.descricao}</p>
-            <div className="flex gap-4 text-xs text-gray-500">
+            <div className="flex gap-4 text-xs text-gray-500 flex-wrap">
               <span>Criado em: {createdAt}</span>
               <span>•</span>
               <span>Atualizado em: {updatedAt}</span>
@@ -132,7 +136,7 @@ export default function FeedbackDetail() {
         </div>
 
         {/* Comments Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-6 mb-24">
           <h2 className="text-xl font-bold text-gray-800 mb-4">
             Comentários ({comments.length})
           </h2>
@@ -157,7 +161,7 @@ export default function FeedbackDetail() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 shadow-sm"
             >
               {submitting ? "Publicando..." : "Publicar"}
             </button>

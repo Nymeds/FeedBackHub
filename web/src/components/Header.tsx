@@ -1,21 +1,25 @@
-import { Card } from "./Card";
+import React from "react";
 
-interface HeaderProps {
-  totalFeedbacks?: number;
-}
-
-export function Header({ totalFeedbacks }: HeaderProps) {
+export default function Header() {
   return (
-    <Card variant="tertiary" size="lg" className="mb-6 text-center">
-      <h1 className="text-3xl font-semibold leading-tight text-gray-900 mb-2">
-        FeedbackHub
-      </h1>
-      <p className="text-gray-700 text-sm">Bem-vindo(a) ao FeedbackHub!</p>
-      {totalFeedbacks !== undefined && (
-        <p className="mt-2 text-gray-600 text-sm font-medium">
-          Total de feedbacks: {totalFeedbacks}
-        </p>
-      )}
-    </Card>
+    <header className="w-full bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
+      <div className="max-w-4xl mx-auto px-4 py-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">FeedbackHub</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-300 mt-1">
+            Gerencie seus feedbacks de forma simples e eficiente
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => (window.location.href = "/feedback/new")}
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm shadow-sm"
+          >
+            Criar novo
+          </button>
+        </div>
+      </div>
+    </header>
   );
 }

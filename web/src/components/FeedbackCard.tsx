@@ -1,116 +1,77 @@
-import type { HTMLAttributes } from "react";
-import { FaComment, FaCalendarAlt, FaUser } from "react-icons/fa";
+import React from "react";
+import { FaRegCommentDots, FaCalendarAlt, FaUser } from "react-icons/fa";
 
-interface FeedbackCardProps extends HTMLAttributes<HTMLDivElement> {
+interface Props {
   titulo: string;
   descricao: string;
   categoria: string;
   status: string;
-  autor: string;
-  commentsCount: number;
-  createdAt: string;
+  autor?: string;
+  commentsCount?: number;
+  createdAt?: string;
   onClick?: () => void;
 }
 
-const truncateText = (text: string, maxLength: number) => {
-  if (!text) return "";
-  return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
-};
+const truncate = (s = "", n = 180) => (s.length > n ? s.slice(0, n) + "…" : s);
 
 export default function FeedbackCard({
   titulo,
   descricao,
   categoria,
   status,
-  autor,
-  commentsCount,
+  autor = "—",
+  commentsCount = 0,
   createdAt,
-  className,
   onClick,
-  ...props
-}: FeedbackCardProps) {
-  const formattedDate = new Date(createdAt).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-
-  // Status configuration
-  const statusConfig = {
-    open: {
-      bg: "bg-emerald-50",
-      text: "text-emerald-700",
-      border: "border-emerald-200",
-      dot: "bg-emerald-500",
-      label: "Aberto"
-    },
-    closed: {
-      bg: "bg-gray-50",
-      text: "text-gray-700",
-      border: "border-gray-200",
-      dot: "bg-gray-400",
-      label: "Fechado"
-    },
-    in_progress: {
-      bg: "bg-blue-50",
-      text: "text-blue-700",
-      border: "border-blue-200",
-      dot: "bg-blue-500",
-      label: "Em Andamento"
-    }
-  };
-
-  const statusKey = status.toLowerCase() as keyof typeof statusConfig;
-  const statusStyle = statusConfig[statusKey] || statusConfig.open;
+}: Props) {
+  const date = createdAt ? new Date(createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : "";
 
   return (
-    <div
-      className={`group bg-white border border-gray-200 rounded-xl p-5 cursor-pointer transition-all duration-200 hover:border-indigo-300 hover:shadow-md ${className || ""}`}
+    <article
       onClick={onClick}
-      {...props}
+      className="cursor-pointer w-full rounded-lg border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 hover:shadow-lg transition-shadow flex gap-4 items-start"
     >
-      {/* Header: Categoria e Status */}
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <span className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1.5 rounded-lg border border-indigo-100">
-          <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
-          {truncateText(categoria, 20)}
-        </span>
-        
-        <span className={`inline-flex items-center gap-1.5 ${statusStyle.bg} ${statusStyle.text} text-xs font-semibold px-3 py-1.5 rounded-lg border ${statusStyle.border}`}>
-          <span className={`w-1.5 h-1.5 ${statusStyle.dot} rounded-full`}></span>
-          {statusStyle.label}
-        </span>
+      {/* Left: badge */}
+      <div className="flex-shrink-0">
+        <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-sm font-semibold text-slate-700 dark:text-slate-100">
+          {categoria.slice(0, 2).toUpperCase()}
+        </div>
       </div>
 
-      {/* Título */}
-      <h3 className="font-bold text-gray-900 text-lg mb-2 group-hover:text-indigo-600 transition-colors">
-        {titulo}
-      </h3>
-
-      {/* Descrição */}
-      <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2">
-        {descricao}
-      </p>
-
-      {/* Footer: Metadata */}
-      <div className="flex items-center justify-between gap-4 pt-4 border-t border-gray-100">
-        <div className="flex items-center gap-4 text-sm text-gray-500">
-          <div className="flex items-center gap-1.5">
-            <FaUser className="text-gray-400" size={12} />
-            <span className="font-medium">{truncateText(autor, 15)}</span>
+      {/* Middle: main content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white truncate">{titulo}</h3>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {truncate(descricao)}
+            </p>
           </div>
-          
-          <div className="flex items-center gap-1.5">
-            <FaComment className="text-gray-400" size={12} />
-            <span className="font-medium">{commentsCount}</span>
+
+          <div className="shrink-0">
+            <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
+              {status}
+            </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 text-sm text-gray-500">
-          <FaCalendarAlt className="text-gray-400" size={12} />
-          <span>{formattedDate}</span>
+        <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-2">
+              <FaUser /> <span className="text-slate-600 dark:text-slate-300">{autor}</span>
+            </span>
+
+            <span className="flex items-center gap-2">
+              <FaRegCommentDots /> <span>{commentsCount}</span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <FaCalendarAlt />
+            <span>{date}</span>
+          </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

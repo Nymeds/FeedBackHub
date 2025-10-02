@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from "react";
-import { getComments, createComment, deleteComment, updateComment, type Comment } from "../api/comments";
+import { getComments, createComment, deleteComment, updateComment, Comment } from "../api/comments";
 
 export function useComments(idfeedback: string) {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -17,6 +16,7 @@ export function useComments(idfeedback: string) {
     } catch (err: any) {
       console.log(err);
       setError("Não foi possível carregar os comentários.");
+     
       throw err;
     } finally {
       setLoading(false);
@@ -31,7 +31,7 @@ export function useComments(idfeedback: string) {
         return newComment;
       } catch (err: any) {
         console.log("Erro ao criar comentário:", err);
-        throw err;
+        throw err; 
       }
     },
     [idfeedback]
@@ -65,7 +65,7 @@ export function useComments(idfeedback: string) {
   );
 
   useEffect(() => {
-    fetchComments().catch(() => {});
+    fetchComments().catch(() => {}); 
   }, [fetchComments]);
 
   return { comments, loading, error, fetchComments, addComment, editComment, removeComment };

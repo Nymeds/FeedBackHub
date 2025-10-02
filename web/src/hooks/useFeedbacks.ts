@@ -3,7 +3,6 @@ import { getFeedbacks } from "../api/feedbacks";
 import debounce from "lodash.debounce";
 
 export function useFeedbacks(initialPage = 1, limit = 10) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(initialPage);

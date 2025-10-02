@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "./api";
 
 export const getFeedbacks = (page = 1, limit = 10, q = "") =>

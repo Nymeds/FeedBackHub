@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "./api";
 
 export type Comment = {
@@ -17,7 +16,7 @@ export async function getComments(idfeedback: string) {
     return res.data;
   } catch (err: any) {
     if (err.response?.data?.error) {
-      throw err.response.data.error;
+      throw err.response.data.error; // Propaga o erro do backend
     }
     throw { code: "UNKNOWN_ERROR", message: "Erro desconhecido" };
   }

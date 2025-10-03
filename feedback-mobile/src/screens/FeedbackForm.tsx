@@ -127,14 +127,19 @@ export default function FeedbackForm() {
       {/* Header customizado */}
       <AppHeader
         title={isEdit ? feedback?.titulo || "Editar Feedback" : "Criar Feedback"}
-        onBack={() => navigation.goBack()} 
+        onBack={() => navigation.goBack()}
         onDelete={
           isEdit
             ? async () => {
                 try {
                   await deleteFeedback(idfeedback!);
                   showToast("Feedback deletado!");
-                  navigation.navigate("FeedbackList");
+
+                  // Volta para a lista garantindo que a stack seja atualizada
+                  navigation.reset({
+                    index: 0,
+                    routes: [{ name: "FeedbackList" }],
+                  });
                 } catch (err: any) {
                   showToast(err?.message || "Erro ao deletar feedback");
                 }
@@ -142,6 +147,7 @@ export default function FeedbackForm() {
             : undefined
         }
       />
+
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <AppInput

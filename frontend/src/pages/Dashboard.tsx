@@ -81,7 +81,7 @@ export function Dashboard() {
   return (
     <div className="min-h-screen flex flex-col bg-background-primary p-4 sm:p-6 md:p-8">
       {/* Header */}
-      <AppHeader title="Dashboard" />
+      <AppHeader title="Feedbacks" />
 
       {/* Topo com busca */}
       <Card className="mb-6 p-4 sm:p-6 w-full max-w-5xl md:max-w-6xl mx-auto flex flex-col items-center gap-4">

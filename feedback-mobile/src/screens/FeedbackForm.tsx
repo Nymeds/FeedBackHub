@@ -127,7 +127,7 @@ export default function FeedbackForm() {
       {/* Header customizado */}
       <AppHeader
         title={isEdit ? feedback?.titulo || "Editar Feedback" : "Criar Feedback"}
-        onBack={() => navigation.goBack()}
+        onBack={() => navigation.goBack()} 
         onDelete={
           isEdit
             ? async () => {

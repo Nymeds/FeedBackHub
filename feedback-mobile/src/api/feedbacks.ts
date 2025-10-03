@@ -19,7 +19,7 @@ export async function getFeedbacks(page = 1, limit = 10, q = "") {
     const res = await api.get<{ items: Feedback[] }>(`/feedbacks`, {
       params: { _page: page, _limit: limit, q },
     });
-    return res.data;
+    return res;
   } catch (err: any) {
     if (err.response?.data?.error) {
       throw err.response.data.error;
@@ -32,7 +32,7 @@ export async function getFeedbacks(page = 1, limit = 10, q = "") {
 export async function getFeedbackById(id: string) {
   try {
     const res = await api.get<Feedback>(`/feedbacks/${id}`);
-    return res.data;
+    return res;
   } catch (err: any) {
     if (err.response?.data?.error) {
       throw err.response.data.error;
@@ -45,7 +45,7 @@ export async function getFeedbackById(id: string) {
 export async function createFeedback(data: Partial<Feedback>) {
   try {
     const res = await api.post<Feedback>(`/feedbacks`, data);
-    return res.data;
+    return res;
   } catch (err: any) {
     if (err.response?.data?.error) {
       throw err.response.data.error;

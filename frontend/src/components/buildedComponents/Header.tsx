@@ -32,31 +32,36 @@ export default function AppHeader({ title, onBack, onEdit, onDelete }: AppHeader
       setDeleting(false);
     }
   };
-  
 
   return (
-    <div className="flex items-center justify-between w-full p-4 border-b border-gray-300">
+    <div className="flex items-center justify-between w-full max-w-3xl mx-auto p-4 mb-6 bg-white rounded-xl shadow-md border border-gray-200">
       {/* Botão voltar */}
       {onBack ? (
         <button
           onClick={onBack}
-          className="text-blue-600 font-semibold hover:underline"
+          className="text-blue-600 font-semibold hover:bg-blue-50 px-3 py-1 rounded transition"
         >
           &larr; Voltar
         </button>
       ) : (
-        <div className="w-20" /> // espaço para alinhar o título
+        <div className="w-20" /> 
       )}
 
       {/* Título */}
-      <h1 className="text-xl font-bold text-center flex-1">{title}</h1>
+        <h1
+        className="text-2xl font-bold text-gray-800 text-center flex-1 truncate"
+        style={{ maxWidth: "200px" }}
+        title={title} 
+             >
+        {title}
+        </h1>
 
       {/* Botões editar / deletar */}
-      <div className="flex gap-2 w-20 justify-end">
+      <div className="flex gap-2 w-36 justify-end">
         {onEdit && (
           <Button
             onClick={onEdit}
-            className="text-gray-700 hover:text-gray-900 font-medium"
+            className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium px-4 py-1 rounded transition"
           >
             Editar
           </Button>
@@ -65,7 +70,7 @@ export default function AppHeader({ title, onBack, onEdit, onDelete }: AppHeader
           <Button
             onClick={handleDelete}
             disabled={deleting}
-            className={`text-red-600 font-medium ${deleting ? "opacity-50 cursor-not-allowed" : "hover:underline"}`}
+            className={`bg-red-100 hover:bg-red-200 text-red-600 font-medium px-4 py-1 rounded transition ${deleting ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {deleting ? "Deletando..." : "Deletar"}
           </Button>

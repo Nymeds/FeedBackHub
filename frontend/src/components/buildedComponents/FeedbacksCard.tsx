@@ -6,7 +6,6 @@ interface FeedbackCardProps {
   descricao: string;
   categoria: string;
   status: string;
-  autor: string;
   commentsCount: number;
   createdAt: string;
   onClick?: () => void;
@@ -22,7 +21,6 @@ export default function FeedbackCard({
   descricao,
   categoria,
   status,
-  autor,
   commentsCount,
   createdAt,
   onClick,
@@ -46,7 +44,6 @@ export default function FeedbackCard({
 
       {/* Meio */}
       <div className="mb-2">
-        <div className="text-gray-600 font-semibold text-sm">{truncateText(autor, 18)}</div>
         <div className="font-bold text-lg">{truncateText(titulo, 30)}</div>
         <div className="text-gray-800 text-sm">{truncateText(descricao, 80)}</div>
       </div>

@@ -10,12 +10,12 @@ export function useComments(idfeedback: string) {
 
   // Busca comentários
   const fetchComments = useCallback(async () => {
-    if (!idfeedback) return; // Proteção extra
+    if (!idfeedback) return; 
     setLoading(true);
     setError(null);
     try {
       const data = await getComments(idfeedback);
-      // Em React Native não precisa de `.items` se o backend já retornar array
+      
       setComments(data.items || []);
     } catch (err: any) {
       console.error("Erro ao buscar comentários:", err);

@@ -1,5 +1,5 @@
 import { prisma } from "../../utils/prismaClient";
-import { Feedback } from "@prisma/client";
+
 
 export interface CreateFeedbackDTO {
   titulo: string;

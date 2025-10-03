@@ -35,7 +35,7 @@ export default function FeedbackDetail() {
 
   const { comments, addComment, editComment, removeComment, fetchComments } = useComments(idfeedback);
 
-  const { control, handleSubmit, reset, formState: { errors }, setError } = useForm<FormData>({
+  const { control, handleSubmit, reset, setError } = useForm<FormData>({
     defaultValues: { autor: "", conteudo: "" },
     resolver: yupResolver(schema),
   });

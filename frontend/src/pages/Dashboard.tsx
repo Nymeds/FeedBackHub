@@ -18,7 +18,7 @@ export function Dashboard() {
     setPage,
     handleSearch,
     fetchFeedbacks,
-  } = useFeedbacks(1, 5); // pageSize = 5
+  } = useFeedbacks(1, 5); 
 
   const [listMaxHeight, setListMaxHeight] = useState<number>(400);
   const containerRef = useRef<HTMLDivElement>(null);

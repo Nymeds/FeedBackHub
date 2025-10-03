@@ -1,5 +1,5 @@
 import { CommentsPrismaRepository } from "../../repositories/prisma/comments-prisma-repository";
-//Validação
+
 interface Input {
   idfeedback: string;
   page?: number;

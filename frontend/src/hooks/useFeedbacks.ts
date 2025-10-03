@@ -1,34 +1,44 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useCallback } from "react";
-import { getFeedbacks } from "../api/feedback";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import debounce from "lodash.debounce";
+import {
+  getFeedbacks,
+  createFeedback,
+  updateFeedback,
+  deleteFeedback,
+  type Feedback,
+} from "../api/feedback";
 
 export function useFeedbacks(initialPage = 1, limit = 5) {
-  const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(initialPage);
   const [search, setSearch] = useState("");
-  const [error, setError] = useState("");
-  const [hasMore, setHasMore] = useState(true); 
-  const fetchData = useCallback(
+  const [hasMore, setHasMore] = useState(true);
+
+  // Busca feedbacks
+  const fetchFeedbacks = useCallback(
     async (reset = false) => {
       if (!hasMore && !reset) return;
+
       setLoading(true);
-      setError("");
+      setError(null);
+
       try {
-        const res = await getFeedbacks(page, limit, search);
-        const items = res.data.items || [];
+        const data = await getFeedbacks(page, limit, search);
+        const items = data.items || [];
 
         if (reset) {
           setFeedbacks(items);
-          setHasMore(items.length === limit);
         } else {
           setFeedbacks((prev) => [...prev, ...items]);
-          setHasMore(items.length === limit);
         }
-      } catch (err) {
-        console.error(err);
-        setError("Não foi possível carregar os feedbacks.");
+
+        setHasMore(items.length === limit);
+      } catch (err: any) {
+        console.error("Erro ao buscar feedbacks:", err);
+        setError(err.message || "Erro desconhecido");
       } finally {
         setLoading(false);
       }
@@ -36,19 +46,73 @@ export function useFeedbacks(initialPage = 1, limit = 5) {
     [page, limit, search, hasMore]
   );
 
-  const handleSearch = useCallback(
-    debounce((text: string) => {
-      setSearch(text);
-      setPage(1);
-      setHasMore(true);
-      fetchData(true);
-    }, 500),
-    [fetchData]
+  // Busca inicial / página alterada
+  useEffect(() => {
+    fetchFeedbacks(page === 1);
+  }, [fetchFeedbacks, page]);
+
+  // Debounce para busca
+  const handleSearch = useMemo(
+    () =>
+      debounce((text: string) => {
+        setSearch(text);
+        setPage(1);
+        setHasMore(true);
+        fetchFeedbacks(true);
+      }, 500),
+    [fetchFeedbacks, setPage]
   );
 
-  useEffect(() => {
-    fetchData(page === 1); 
-  }, [fetchData, page]);
+  // Adiciona feedback
+  const addFeedback = async (data: Partial<Feedback>) => {
+    try {
+      const newFeedback = await createFeedback(data);
+      setFeedbacks((prev) => [...prev, newFeedback]);
+    } catch (err: any) {
+      setError(err.message || "Erro desconhecido");
+      throw err;
+    }
+  };
 
-  return { feedbacks, loading, page, setPage, search, handleSearch, error, fetchData, hasMore };
+  // Edita feedback
+  const editFeedback = async (idfeedback: string | undefined, data: Partial<Feedback>) => {
+    if (!idfeedback) throw new Error("ID do feedback é inválido");
+    try {
+      const updated = await updateFeedback(idfeedback, data);
+      setFeedbacks((prev) =>
+        prev.map((f) => (f.idfeedback === idfeedback ? updated : f))
+      );
+    } catch (err: any) {
+      setError(err.message || "Erro desconhecido");
+      throw err;
+    }
+  };
+
+  // Remove feedback
+  const removeFeedback = async (idfeedback: string | undefined) => {
+    if (!idfeedback) throw new Error("ID do feedback é inválido");
+    try {
+      await deleteFeedback(idfeedback);
+      setFeedbacks((prev) => prev.filter((f) => f.idfeedback !== idfeedback));
+    } catch (err: any) {
+      setError(err.message || "Erro desconhecido");
+      throw err;
+    }
+  };
+
+  return {
+    feedbacks,
+    loading,
+    error,
+    page,
+    setPage,
+    search,
+    setSearch,
+    hasMore,
+    fetchFeedbacks,
+    handleSearch,
+    addFeedback,
+    editFeedback,
+    removeFeedback,
+  };
 }

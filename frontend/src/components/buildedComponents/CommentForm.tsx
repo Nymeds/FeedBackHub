@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { schema } from "../../pages/Schema"; // ajuste o caminho se necessário
-import AppInput from "../../components/buildedComponents/Appinput";
+import AppInput from "../../components/buildedComponents/AppInput";
 import { Button } from "../../components/baseComponents/button";
 import { useToast } from "../../context/ToastProvider";
 

@@ -1,13 +1,9 @@
 import React from "react";
 import { CheckIcon, Calendar } from "lucide-react";
+import type { Feedback } from "../../api/feedback";
 
 interface FeedbackCardProps {
-  titulo: string;
-  descricao: string;
-  categoria: string;
-  status: string;
-  commentsCount: number;
-  createdAt: string;
+  feedback: Feedback;
   onClick?: () => void;
 }
 
@@ -16,15 +12,9 @@ const truncateText = (text: string, maxLength: number) => {
   return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
 };
 
-export default function FeedbackCard({
-  titulo,
-  descricao,
-  categoria,
-  status,
-  commentsCount,
-  createdAt,
-  onClick,
-}: FeedbackCardProps) {
+export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
+  const { titulo, descricao, categoria, status, commentsCount, createdAt } = feedback;
+
   const formattedDate = new Date(createdAt).toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "short",
@@ -48,10 +38,7 @@ export default function FeedbackCard({
 
       {/* Meio */}
       <div className="mb-2">
-        {/* Título sempre com ellipsis */}
         <div className="font-bold text-lg truncate">{truncateText(titulo, 30)}</div>
-
-        {/* Descrição: quebra no mobile, ellipsis no desktop */}
         <div className="text-gray-800 text-sm break-words sm:truncate sm:max-w-full">
           {descricao}
         </div>

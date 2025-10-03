@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getFeedbackById } from "../api/feedback";
 import { useComments } from "../hooks/useComments";
 import CommentCard from "../components/buildedComponents/CommentCard";
@@ -12,20 +12,33 @@ export default function FeedbackDetailPage() {
   const { showToast } = useToast();
   const { idfeedback } = useParams<{ idfeedback: string }>();
   const navigate = useNavigate();
-  const [feedback, setFeedback] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
-  const { comments, addComment, editComment, removeComment } = useComments(idfeedback || "");
+  // Pega feedback vindo via navigate state (opcional)
+  const feedbackFromState = location.state?.feedback;
 
-  // Carrega o feedback
+  const [feedback, setFeedback] = useState<any>(feedbackFromState || null);
+  const [loading, setLoading] = useState(!feedbackFromState);
+
+  // Hook de comentários
+  const { comments, addComment, editComment, removeComment } = useComments(
+    idfeedback || ""
+  );
+
+  // Carrega feedback se não veio via state
   useEffect(() => {
-    if (!idfeedback) return;
+    if (feedback) return;
+
+    if (!idfeedback) {
+      showToast("ID do feedback não fornecido");
+      return;
+    }
 
     const loadFeedback = async () => {
       setLoading(true);
       try {
-        const res = await getFeedbackById(idfeedback);
-        setFeedback(res.data);
+        const data = await getFeedbackById(idfeedback);
+        setFeedback(data); // ✅ corrigido: usar 'data' direto, sem .data
       } catch (err) {
         console.error(err);
         showToast("Erro ao carregar feedback");
@@ -35,15 +48,21 @@ export default function FeedbackDetailPage() {
     };
 
     loadFeedback();
-  }, [idfeedback]);
+  }, [idfeedback, feedback, showToast]);
 
   const handleEdit = () => {
     if (!feedback) return;
     navigate(`/feedback/${feedback.idfeedback}`);
   };
 
-  if (loading) return <p className="text-center mt-10 text-gray-500">Carregando feedback...</p>;
-  if (!feedback) return <p className="text-center mt-10 text-red-500">Feedback não encontrado.</p>;
+  if (loading)
+    return (
+      <p className="text-center mt-10 text-gray-500">Carregando feedback...</p>
+    );
+  if (!feedback)
+    return (
+      <p className="text-center mt-10 text-red-500">Feedback não encontrado.</p>
+    );
 
   const createdAt = new Date(feedback.createdAt).toLocaleString("pt-BR", {
     day: "2-digit",
@@ -64,7 +83,11 @@ export default function FeedbackDetailPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header sem delete */}
-      <AppHeader title={feedback.titulo} onBack={() => navigate(-1)} onEdit={handleEdit} />
+      <AppHeader
+        title={feedback.titulo}
+        onBack={() => navigate(-1)}
+        onEdit={handleEdit}
+      />
 
       {/* Card do Feedback */}
       <div className="max-w-3xl w-full mx-auto bg-white rounded-xl shadow p-6 flex flex-col gap-6 mt-4">
@@ -72,7 +95,9 @@ export default function FeedbackDetailPage() {
         <div className="flex flex-wrap gap-4">
           <div className="bg-gray-200 px-4 py-2 rounded-lg">
             <p className="text-xs font-semibold text-gray-500">Categoria</p>
-            <p className="text-sm font-medium text-gray-700">{feedback.categoria}</p>
+            <p className="text-sm font-medium text-gray-700">
+              {feedback.categoria}
+            </p>
           </div>
           <div className="bg-gray-200 px-4 py-2 rounded-lg">
             <p className="text-xs font-semibold text-gray-500">Status</p>
@@ -87,7 +112,9 @@ export default function FeedbackDetailPage() {
         </p>
 
         {/* Comentários */}
-        <h2 className="text-lg font-semibold mt-4 text-gray-800">Comentários ({comments.length})</h2>
+        <h2 className="text-lg font-semibold mt-4 text-gray-800">
+          Comentários ({comments.length})
+        </h2>
         <div className="flex flex-col gap-3 mt-2 max-h-96 overflow-y-auto">
           {comments.length > 0 ? (
             comments.map((c) => (

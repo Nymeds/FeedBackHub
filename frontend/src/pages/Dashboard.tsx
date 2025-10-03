@@ -1,13 +1,15 @@
-import { useEffect, useState, useMemo, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
+
 import Card from "../components/baseComponents/card";
 import FeedbackCard from "../components/buildedComponents/FeedbacksCard";
-import { useFeedbacks } from "../hooks/useFeedbacks";
 import AppHeader from "../components/buildedComponents/Header";
+import { useFeedbacks } from "../hooks/useFeedbacks";
 
 export function Dashboard() {
   const navigate = useNavigate();
+
   const {
     feedbacks,
     loading,
@@ -15,7 +17,7 @@ export function Dashboard() {
     page,
     setPage,
     handleSearch,
-    fetchData,
+    fetchFeedbacks,
   } = useFeedbacks(1, 5); // pageSize = 5
 
   const [listMaxHeight, setListMaxHeight] = useState<number>(400);
@@ -44,17 +46,16 @@ export function Dashboard() {
     return () => window.removeEventListener("resize", calculateMaxHeight);
   }, [calculateMaxHeight]);
 
-  // Debounce para busca com reset ao apagar o texto
-  const debouncedSearch = useMemo(
-    () =>
-      debounce((value: string) => {
-        handleSearch(value);
-        setPage(1);
-        if (value.trim() === "") {
-          fetchData(); // Busca todos quando campo vazio
-        }
-      }, 500),
-    [handleSearch, setPage, fetchData]
+  // Debounce para busca
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      handleSearch(value);
+      setPage(1);
+      if (value.trim() === "") {
+        fetchFeedbacks(true); // reset
+      }
+    }, 500),
+    [handleSearch, setPage, fetchFeedbacks]
   );
 
   useEffect(() => {
@@ -94,8 +95,9 @@ export function Dashboard() {
 
       {/* Lista de Feedbacks */}
       <main className="flex-1 flex justify-center">
-        <Card className="w-full max-w-5xl md:max-w-6xl mx-auto p-4 sm:p-6 flex flex-col border border-border-primary bg-background-quaternary shadow-sm flex-1">
-          {/* Estados */}
+        <Card
+          className="w-full max-w-5xl md:max-w-6xl mx-auto p-4 sm:p-6 flex flex-col border border-border-primary bg-background-quaternary shadow-sm flex-1"
+        >
           {error && <p className="text-red-500 text-center">{error}</p>}
           {!loading && sortedFeedbacks.length === 0 && (
             <p className="text-gray-500 text-center">Nenhum feedback encontrado.</p>
@@ -110,14 +112,8 @@ export function Dashboard() {
             {sortedFeedbacks.map((feedback) => (
               <FeedbackCard
                 key={feedback.idfeedback}
-                titulo={feedback.titulo}
-                descricao={feedback.descricao}
-                categoria={feedback.categoria}
-                status={feedback.status}
-                commentsCount={feedback.commentsCount || 0}
-                createdAt={feedback.createdAt}
+                feedback={feedback}
                 onClick={() => navigate(`/details/${feedback.idfeedback}`)}
-                className="line-clamp-2"
               />
             ))}
 

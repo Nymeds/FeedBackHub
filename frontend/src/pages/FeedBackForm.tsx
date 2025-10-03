@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -5,7 +6,7 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import AppHeader from "../components/buildedComponents/Header";
-import AppInput from "../components/buildedComponents/Appinput";
+import AppInput from "../components/buildedComponents/AppInput";
 import { Button } from "../components/baseComponents/button";
 import { useToast } from "../context/ToastProvider";
 import { getFeedbackById, createFeedback, updateFeedback, deleteFeedback } from "../api/feedback";
@@ -47,7 +48,7 @@ export default function FeedbackFormPage() {
   useEffect(() => {
     if (isEdit) {
       getFeedbackById(idfeedback!)
-        .then(res => reset(res.data))
+        .then(res => reset(res))
         .catch(() => showToast("Não foi possível carregar o feedback"))
         .finally(() => setLoading(false));
     } else {
@@ -140,7 +141,9 @@ export default function FeedbackFormPage() {
   </div>
 
   {/* Botão de submit */}
-  <Button size="lg" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
+  <Button size="lg" onClick={
+    // @ts-expect-error
+    handleSubmit(onSubmit)} disabled={isSubmitting}>
     {isEdit ? "Atualizar Feedback" : "Criar Feedback"}
   </Button>
 </div>

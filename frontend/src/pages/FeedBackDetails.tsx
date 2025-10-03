@@ -38,7 +38,7 @@ export default function FeedbackDetailPage() {
       setLoading(true);
       try {
         const data = await getFeedbackById(idfeedback);
-        setFeedback(data); // ✅ corrigido: usar 'data' direto, sem .data
+        setFeedback(data);
       } catch (err) {
         console.error(err);
         showToast("Erro ao carregar feedback");

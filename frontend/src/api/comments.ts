@@ -16,7 +16,7 @@ export async function getComments(idfeedback: string) {
     return res.data;
   } catch (err: any) {
     if (err.response?.data?.error) {
-      throw err.response.data.error; // Propaga o erro do backend
+      throw err.response.data.error; 
     }
     throw { code: "UNKNOWN_ERROR", message: "Erro desconhecido" };
   }

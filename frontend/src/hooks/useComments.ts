@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/hooks/useComments.ts
 import { useEffect, useState, useCallback } from "react";
 import { getComments, createComment, updateComment, deleteComment } from "../api/comments";
 import type { Comment } from "../api/comments";
@@ -17,7 +16,7 @@ export function useComments(idfeedback: string) {
       const data = await getComments(idfeedback);
       setComments(data.items);
     } catch (err: any) {
-      console.error("Erro ao buscar comentários:", err);
+      
       setError(err.message || "Erro desconhecido");
     } finally {
       setLoading(false);
@@ -34,7 +33,7 @@ export function useComments(idfeedback: string) {
       const newComment = await createComment(idfeedback, { conteudo, autor });
       setComments((prev) => [...prev, newComment]);
     } catch (err: any) {
-      console.error("Erro ao criar comentário:", err);
+      setError(err.message || "Erro desconhecido");
       throw err;
     }
   };
@@ -48,7 +47,7 @@ export function useComments(idfeedback: string) {
         prev.map((c) => (c.idcomment === idcomment ? updated : c))
       );
     } catch (err: any) {
-      console.error("Erro ao atualizar comentário:", err);
+      setError(err.message || "Erro desconhecido");
       throw err;
     }
   };
@@ -60,7 +59,7 @@ export function useComments(idfeedback: string) {
       await deleteComment(idcomment);
       setComments((prev) => prev.filter((c) => c.idcomment !== idcomment));
     } catch (err: any) {
-      console.error("Erro ao deletar comentário:", err);
+      setError(err.message || "Erro desconhecido");
       throw err;
     }
   };

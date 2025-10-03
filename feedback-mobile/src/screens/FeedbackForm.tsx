@@ -15,12 +15,13 @@ import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { Picker } from "@react-native-picker/picker";
 
 import { RootStackParamList } from "../navigation/AppStack";
-import { getFeedbackById, createFeedback, updateFeedback, deleteFeedback, type Feedback } from "../api/feedbacks";
+import { useFeedbacks } from "../hooks/useFeedbacks";
+import { getFeedbackById, type Feedback } from "../api/feedbacks";
 import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
+import AppHeader from "../components/AppHeader";
 import { CATEGORIAS, STATUS, Categoria, Status } from "../utils/enums";
 import { useToast } from "../context/ToastProvider";
-import AppHeader from "../components/AppHeader";
 
 const feedbackSchema = yup.object({
   titulo: yup.string().min(3, "Mínimo 3 caracteres").required("Título obrigatório"),
@@ -43,6 +44,9 @@ export default function FeedbackForm() {
   const isEdit = !!idfeedback;
   const { showToast } = useToast();
 
+  // Hook centralizado
+  const { addFeedback, editFeedback, removeFeedback } = useFeedbacks();
+
   const [loading, setLoading] = useState(isEdit);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
 
@@ -61,13 +65,14 @@ export default function FeedbackForm() {
     },
   });
 
+  // Carregar feedback para edição
   useEffect(() => {
     if (!isEdit) return;
 
     const loadFeedback = async () => {
       setLoading(true);
       try {
-        const feedbackData = await getFeedbackById(idfeedback!); // retorna diretamente o objeto Feedback
+        const feedbackData = await getFeedbackById(idfeedback!);
         setFeedback(feedbackData);
 
         reset({
@@ -88,22 +93,31 @@ export default function FeedbackForm() {
     loadFeedback();
   }, [idfeedback, isEdit, reset, showToast, navigation]);
 
+  // Submit (criar/editar)
   const onSubmit: SubmitHandler<FeedbackFormData> = async (data) => {
     try {
-      if (isEdit) {
-        await updateFeedback(idfeedback!, data);
+      if (isEdit && idfeedback) {
+        await editFeedback(idfeedback, data);
         showToast("Feedback atualizado!");
       } else {
-        await createFeedback(data);
+        await addFeedback(data);
         showToast("Feedback criado!");
       }
       navigation.navigate("FeedbackList");
     } catch (err: any) {
-      if (err?.details?.length) {
-        showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
-      } else {
-        showToast(err?.message || "Erro desconhecido");
-      }
+      showToast(err?.message || "Erro desconhecido");
+    }
+  };
+
+  // Deletar
+  const handleDelete = async () => {
+    if (!idfeedback) return;
+    try {
+      await removeFeedback(idfeedback);
+      showToast("Feedback deletado!");
+      navigation.reset({ index: 0, routes: [{ name: "FeedbackList" }] });
+    } catch (err: any) {
+      showToast(err?.message || "Erro ao deletar feedback");
     }
   };
 
@@ -121,19 +135,7 @@ export default function FeedbackForm() {
       <AppHeader
         title={isEdit ? feedback?.titulo || "Editar Feedback" : "Criar Feedback"}
         onBack={() => navigation.goBack()}
-        onDelete={
-          isEdit
-            ? async () => {
-                try {
-                  await deleteFeedback(idfeedback!);
-                  showToast("Feedback deletado!");
-                  navigation.reset({ index: 0, routes: [{ name: "FeedbackList" }] });
-                } catch (err: any) {
-                  showToast(err?.message || "Erro ao deletar feedback");
-                }
-              }
-            : undefined
-        }
+        onDelete={isEdit ? handleDelete : undefined}
       />
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -164,7 +166,7 @@ export default function FeedbackForm() {
               <Text style={styles.label}>Categoria</Text>
               <View style={styles.pickerContainer}>
                 <Picker selectedValue={value} onValueChange={onChange}>
-                  {CATEGORIAS.map((c) => (
+                  {CATEGORIAS.map(c => (
                     <Picker.Item key={c} label={c} value={c} />
                   ))}
                 </Picker>
@@ -182,7 +184,7 @@ export default function FeedbackForm() {
               <Text style={styles.label}>Status</Text>
               <View style={styles.pickerContainer}>
                 <Picker selectedValue={value} onValueChange={onChange}>
-                  {STATUS.map((s) => (
+                  {STATUS.map(s => (
                     <Picker.Item key={s} label={s} value={s} />
                   ))}
                 </Picker>
@@ -200,12 +202,7 @@ export default function FeedbackForm() {
         {isSubmitting ? (
           <ActivityIndicator size="large" style={{ flex: 1 }} />
         ) : (
-          <AppButton
-            variant="primary"
-            title={isEdit ? "Atualizar" : "Criar"}
-            onPress={handleSubmit(onSubmit)}
-            style={{ flex: 1, marginLeft: 8 }}
-          />
+          <AppButton variant="primary" title={isEdit ? "Atualizar" : "Criar"} onPress={handleSubmit(onSubmit)} style={{ flex: 1, marginLeft: 8 }} />
         )}
       </View>
     </KeyboardAvoidingView>

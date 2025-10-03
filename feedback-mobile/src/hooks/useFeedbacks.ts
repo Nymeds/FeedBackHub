@@ -1,7 +1,13 @@
-/* src/hooks/useFeedbacks.ts */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import debounce from "lodash.debounce";
-import { getFeedbacks, type Feedback } from "../api/feedbacks";
+import {
+  getFeedbacks,
+  createFeedback,
+  updateFeedback,
+  deleteFeedback,
+  type Feedback,
+} from "../api/feedbacks";
 
 export function useFeedbacks(initialPage = 1, limit = 10) {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
@@ -11,56 +17,51 @@ export function useFeedbacks(initialPage = 1, limit = 10) {
   const [search, setSearch] = useState("");
   const [hasMore, setHasMore] = useState(true);
 
-  // fetchFeedbacks(reset?: boolean)
+  // Busca feedbacks
   const fetchFeedbacks = useCallback(
     async (reset = false) => {
-      // se já estiver carregando e não for reset, evita concorrência
-      if (loading && !reset) return;
+      if (!hasMore && !reset) return;
 
       setLoading(true);
       setError(null);
 
       try {
-        const pageToLoad = reset ? 1 : page;
-        // getFeedbacks retorna res.data (com { items: Feedback[] })
-        const data = await getFeedbacks(pageToLoad, limit, search);
-        const items = data?.items ?? [];
+        const currentPage = reset ? 1 : page;
+        const data = await getFeedbacks(currentPage, limit, search);
+        const items = data.items || [];
 
-        setFeedbacks(prev => {
+        setFeedbacks((prev) => {
           const combined = reset ? items : [...prev, ...items];
-          // Remove duplicados por idfeedback, mantendo a primeira ocorrência
-          const map = new Map<string, Feedback>();
-          for (const f of combined) {
-            if (!map.has(f.idfeedback)) map.set(f.idfeedback, f);
-          }
-          return Array.from(map.values());
+          // Remove duplicados pelo idfeedback
+          const uniqueMap = new Map<string, Feedback>();
+          combined.forEach(f => uniqueMap.set(f.idfeedback, f));
+          return Array.from(uniqueMap.values());
         });
 
         setHasMore(items.length === limit);
-        if (reset) setPage(1);
       } catch (err: any) {
         console.error("Erro ao buscar feedbacks:", err);
-        setError(err?.message ?? "Erro desconhecido");
+        setError(err?.message || "Erro desconhecido");
       } finally {
         setLoading(false);
       }
     },
-    [page, limit, search, loading]
+    [page, limit, search, hasMore]
   );
 
-  // Quando a página muda (p.ex. setPage foi chamado), busca aquela página
+  // Atualiza lista sempre que a página muda
   useEffect(() => {
-    fetchFeedbacks(); // busca sem reset (page atual)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+    fetchFeedbacks(page === 1);
+  }, [page, fetchFeedbacks]);
 
-  // Busca debounced
+  // Debounce para busca
   const handleSearch = useMemo(
     () =>
       debounce((text: string) => {
         setSearch(text);
+        setPage(1);
         setHasMore(true);
-        fetchFeedbacks(true); // reset
+        fetchFeedbacks(true);
       }, 500),
     [fetchFeedbacks]
   );
@@ -69,15 +70,63 @@ export function useFeedbacks(initialPage = 1, limit = 10) {
     return () => handleSearch.cancel();
   }, [handleSearch]);
 
-  // expõe fetchFeedbacks para ser chamado externamente (pass true para reset)
+  // Adiciona feedback
+  const addFeedback = async (data: Partial<Feedback>) => {
+    try {
+      const newFeedback = await createFeedback(data);
+      setFeedbacks((prev) => [newFeedback, ...prev]);
+    } catch (err: any) {
+      setError(err?.message || "Erro desconhecido");
+      throw err;
+    }
+  };
+
+  // Edita feedback
+  const editFeedback = async (idfeedback: string | undefined, data: Partial<Feedback>) => {
+    if (!idfeedback) throw new Error("ID do feedback é inválido");
+    try {
+      const updated = await updateFeedback(idfeedback, data);
+      setFeedbacks((prev) =>
+        prev.map((f) => (f.idfeedback === idfeedback ? updated : f))
+      );
+    } catch (err: any) {
+      setError(err?.message || "Erro desconhecido");
+      throw err;
+    }
+  };
+
+  // Remove feedback
+  const removeFeedback = async (idfeedback: string | undefined) => {
+    if (!idfeedback) throw new Error("ID do feedback é inválido");
+    try {
+      await deleteFeedback(idfeedback);
+      setFeedbacks((prev) => prev.filter((f) => f.idfeedback !== idfeedback));
+    } catch (err: any) {
+      setError(err?.message || "Erro desconhecido");
+      throw err;
+    }
+  };
+
+  // Lista ordenada por createdAt decrescente
+  const sortedFeedbacks = useMemo(() => {
+    return [...feedbacks].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [feedbacks]);
+
   return {
-    feedbacks,
+    feedbacks: sortedFeedbacks,
     loading,
     error,
     page,
     setPage,
+    search,
+    setSearch,
     hasMore,
-    fetchFeedbacks, // signature: (reset?: boolean) => Promise<void>
+    fetchFeedbacks,
     handleSearch,
+    addFeedback,
+    editFeedback,
+    removeFeedback,
   };
 }

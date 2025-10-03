@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   ScrollView,
@@ -8,41 +8,24 @@ import {
   Platform,
   Text,
 } from "react-native";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { Picker } from "@react-native-picker/picker";
 
 import { RootStackParamList } from "../navigation/AppStack";
-import {
-  createFeedback,
-  getFeedbackById,
-  updateFeedback,
-  deleteFeedback, 
-} from "../api/feedbacks";
+import { getFeedbackById, createFeedback, updateFeedback, deleteFeedback, type Feedback } from "../api/feedbacks";
 import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
 import { CATEGORIAS, STATUS, Categoria, Status } from "../utils/enums";
 import { useToast } from "../context/ToastProvider";
 
 const feedbackSchema = yup.object({
-  titulo: yup
-    .string()
-    .min(3, "Mínimo 3 caracteres")
-    .required("Título obrigatório"),
-  descricao: yup
-    .string()
-    .min(10, "Mínimo 10 caracteres")
-    .required("Descrição obrigatória"),
-  categoria: yup
-    .string()
-    .oneOf(CATEGORIAS as unknown as string[], "Categoria inválida")
-    .required(),
-  status: yup
-    .string()
-    .oneOf(STATUS as unknown as string[], "Status inválido")
-    .required(),
+  titulo: yup.string().min(3, "Mínimo 3 caracteres").required("Título obrigatório"),
+  descricao: yup.string().min(10, "Mínimo 10 caracteres").required("Descrição obrigatória"),
+  categoria: yup.string().oneOf(CATEGORIAS as unknown as string[], "Categoria inválida").required(),
+  status: yup.string().oneOf(STATUS as unknown as string[], "Status inválido").required(),
 });
 
 type FeedbackFormData = {
@@ -58,13 +41,15 @@ export default function FeedbackForm() {
   const { idfeedback } = route.params || {};
   const isEdit = !!idfeedback;
   const { showToast } = useToast();
+  const [loading, setLoading] = useState(isEdit);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
+
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FeedbackFormData>({
-    //@ts-ignore
     resolver: yupResolver(feedbackSchema),
     defaultValues: {
       titulo: "",
@@ -74,13 +59,23 @@ export default function FeedbackForm() {
     },
   });
 
+  // Carrega feedback existente
   useEffect(() => {
-    if (isEdit) {
-      getFeedbackById(idfeedback!)
-        .then((res) => reset(res.data))
-        .catch(() => showToast("Não foi possível carregar o feedback."))
-        ;
-    }
+    if (!isEdit) return;
+
+    const loadFeedback = async () => {
+      setLoading(true);
+      try {
+        const fb = await getFeedbackById(idfeedback!);
+        setFeedback(fb);
+        reset(fb); // Popula o form com os dados existentes
+      } catch {
+        showToast("Não foi possível carregar o feedback.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadFeedback();
   }, [idfeedback, isEdit, reset, showToast]);
 
   const onSubmit: SubmitHandler<FeedbackFormData> = async (data) => {
@@ -93,14 +88,16 @@ export default function FeedbackForm() {
         showToast("Feedback criado!");
       }
       navigation.navigate("FeedbackList");
-    } catch (err : any) {
+    } catch (err: any) {
       if (err.details?.length > 0) {
         showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
       } else {
-         showToast(err.message || "Erro desconhecido");
+        showToast(err.message || "Erro desconhecido");
       }
     }
   };
+
+  if (loading) return <ActivityIndicator size="large" style={{ marginTop: 20 }} />;
 
   return (
     <KeyboardAvoidingView
@@ -140,9 +137,7 @@ export default function FeedbackForm() {
                   ))}
                 </Picker>
               </View>
-              {errors.categoria && (
-                <Text style={styles.errorText}>{errors.categoria.message}</Text>
-              )}
+              {errors.categoria && <Text style={styles.errorText}>{errors.categoria.message}</Text>}
             </View>
           )}
         />
@@ -161,9 +156,7 @@ export default function FeedbackForm() {
                   ))}
                 </Picker>
               </View>
-              {errors.status && (
-                <Text style={styles.errorText}>{errors.status.message}</Text>
-              )}
+              {errors.status && <Text style={styles.errorText}>{errors.status.message}</Text>}
             </View>
           )}
         />
@@ -185,7 +178,6 @@ export default function FeedbackForm() {
           <AppButton
             variant="primary"
             title={isEdit ? "Atualizar Feedback" : "Criar Feedback"}
-            //@ts-ignore
             onPress={handleSubmit(onSubmit)}
             style={{ flex: 1, marginLeft: 8 }}
           />
@@ -195,28 +187,26 @@ export default function FeedbackForm() {
   );
 }
 
-
-
 const styles = StyleSheet.create({
   scrollContainer: {
     padding: 16,
     paddingBottom: 0,
-    backgroundColor: "#f0f4f8", 
+    backgroundColor: "#f0f4f8",
   },
   bottomButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: "#d1d5db", 
-    backgroundColor: "#ffffff", 
+    borderTopColor: "#d1d5db",
+    backgroundColor: "#ffffff",
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: "#cbd5e1", 
+    borderColor: "#cbd5e1",
     borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: "#ffffff", 
+    backgroundColor: "#ffffff",
   },
   errorText: {
     color: "#dc2626",

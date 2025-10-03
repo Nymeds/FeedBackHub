@@ -60,24 +60,36 @@ export default function FeedbackForm() {
     },
   });
 
-  // Carrega feedback existente
+  // Carrega feedback existente para edição
   useEffect(() => {
     if (!isEdit) return;
 
     const loadFeedback = async () => {
       setLoading(true);
       try {
-        const fb = await getFeedbackById(idfeedback!);
-        setFeedback(fb);
-        reset(fb);
-      } catch {
+        const response = await getFeedbackById(idfeedback!);
+        const feedbackData = response.data; // Acessa .data da resposta do Axios
+        
+        setFeedback(feedbackData);
+        
+        // Popula o formulário com os dados existentes
+        reset({
+          titulo: feedbackData.titulo,
+          descricao: feedbackData.descricao,
+          categoria: feedbackData.categoria,
+          status: feedbackData.status,
+        });
+      } catch (err) {
+        console.error("Erro ao carregar feedback:", err);
         showToast("Não foi possível carregar o feedback.");
+        navigation.goBack();
       } finally {
         setLoading(false);
       }
     };
+    
     loadFeedback();
-  }, [idfeedback, isEdit, reset, showToast]);
+  }, [idfeedback, isEdit, reset, showToast, navigation]);
 
   const onSubmit: SubmitHandler<FeedbackFormData> = async (data) => {
     try {
@@ -98,7 +110,14 @@ export default function FeedbackForm() {
     }
   };
 
-  if (loading) return <ActivityIndicator size="large" style={{ marginTop: 20 }} />;
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#007bff" />
+        <Text style={{ marginTop: 12, color: "#666" }}>Carregando feedback...</Text>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -115,7 +134,7 @@ export default function FeedbackForm() {
                 try {
                   await deleteFeedback(idfeedback!);
                   showToast("Feedback deletado!");
-                  navigation.goBack();
+                  navigation.navigate("FeedbackList");
                 } catch (err: any) {
                   showToast(err?.message || "Erro ao deletar feedback");
                 }
@@ -139,6 +158,7 @@ export default function FeedbackForm() {
           control={control}
           name="descricao"
           multiline
+          numberOfLines={6}
           error={errors.descricao?.message}
           style={{ minHeight: 100, textAlignVertical: "top" }}
         />
@@ -149,7 +169,7 @@ export default function FeedbackForm() {
           name="categoria"
           render={({ field: { onChange, value } }) => (
             <View style={{ marginBottom: 16 }}>
-              <Text style={{ marginBottom: 4 }}>Categoria</Text>
+              <Text style={styles.label}>Categoria</Text>
               <View style={styles.pickerContainer}>
                 <Picker selectedValue={value} onValueChange={onChange}>
                   {CATEGORIAS.map((c) => (
@@ -168,7 +188,7 @@ export default function FeedbackForm() {
           name="status"
           render={({ field: { onChange, value } }) => (
             <View style={{ marginBottom: 16 }}>
-              <Text style={{ marginBottom: 4 }}>Status</Text>
+              <Text style={styles.label}>Status</Text>
               <View style={styles.pickerContainer}>
                 <Picker selectedValue={value} onValueChange={onChange}>
                   {STATUS.map((s) => (
@@ -188,7 +208,7 @@ export default function FeedbackForm() {
       <View style={styles.bottomButtons}>
         <AppButton
           variant="secondary"
-          title="Voltar"
+          title="Cancelar"
           onPress={() => navigation.goBack()}
           style={{ flex: 1, marginRight: 8 }}
         />
@@ -197,7 +217,7 @@ export default function FeedbackForm() {
         ) : (
           <AppButton
             variant="primary"
-            title={isEdit ? "Atualizar Feedback" : "Criar Feedback"}
+            title={isEdit ? "Atualizar" : "Criar"}
             onPress={handleSubmit(onSubmit)}
             style={{ flex: 1, marginLeft: 8 }}
           />
@@ -212,6 +232,11 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 0,
     backgroundColor: "#f0f4f8",
+  },
+  label: {
+    marginBottom: 4,
+    fontWeight: "bold",
+    fontSize: 14,
   },
   bottomButtons: {
     flexDirection: "row",
@@ -231,5 +256,6 @@ const styles = StyleSheet.create({
   errorText: {
     color: "#dc2626",
     marginTop: 6,
+    fontSize: 12,
   },
 });

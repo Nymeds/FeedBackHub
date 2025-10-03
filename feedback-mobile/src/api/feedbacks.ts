@@ -1,16 +1,80 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "./api";
 
-export const getFeedbacks = (page = 1, limit = 10, q = "") =>
-  api.get(`/feedbacks`, { params: { _page: page, _limit: limit, q } });
+export type Feedback = {
+  [x: string]: SetStateAction<Feedback | null>;
+  idfeedback: string;
+  titulo: string;
+  descricao: string;
+  categoria: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  commentsCount: number;
+};
 
-export const getFeedbackById = (id: string) =>
-  api.get(`/feedbacks/${id}`);
+// Buscar lista de feedbacks
+export async function getFeedbacks(page = 1, limit = 10, q = "") {
+  try {
+    const res = await api.get<{ items: Feedback[] }>(`/feedbacks`, {
+      params: { _page: page, _limit: limit, q },
+    });
+    return res.data;
+  } catch (err: any) {
+    if (err.response?.data?.error) {
+      throw err.response.data.error;
+    }
+    throw { code: "UNKNOWN_ERROR", message: "Erro desconhecido" };
+  }
+}
 
-export const createFeedback = (data: any) =>
-  api.post(`/feedbacks`, data);
+// Buscar feedback por ID
+export async function getFeedbackById(id: string) {
+  try {
+    const res = await api.get<Feedback>(`/feedbacks/${id}`);
+    return res.data;
+  } catch (err: any) {
+    if (err.response?.data?.error) {
+      throw err.response.data.error;
+    }
+    throw { code: "UNKNOWN_ERROR", message: "Erro desconhecido" };
+  }
+}
 
-export const updateFeedback = (id: string, data: any) =>
-  api.put(`/feedbacks/${id}`, data);
+// Criar feedback
+export async function createFeedback(data: Partial<Feedback>) {
+  try {
+    const res = await api.post<Feedback>(`/feedbacks`, data);
+    return res.data;
+  } catch (err: any) {
+    if (err.response?.data?.error) {
+      throw err.response.data.error;
+    }
+    throw { code: "UNKNOWN_ERROR", message: "Erro desconhecido" };
+  }
+}
 
-export const deleteFeedback = (id: string) =>
-  api.delete(`/feedbacks/${id}`);
+// Atualizar feedback
+export async function updateFeedback(id: string, data: Partial<Feedback>) {
+  try {
+    const res = await api.put<Feedback>(`/feedbacks/${id}`, data);
+    return res.data;
+  } catch (err: any) {
+    if (err.response?.data?.error) {
+      throw err.response.data.error;
+    }
+    throw { code: "UNKNOWN_ERROR", message: "Erro desconhecido" };
+  }
+}
+
+// Deletar feedback
+export async function deleteFeedback(id: string) {
+  try {
+    await api.delete(`/feedbacks/${id}`);
+  } catch (err: any) {
+    if (err.response?.data?.error) {
+      throw err.response.data.error;
+    }
+    throw { code: "UNKNOWN_ERROR", message: "Erro desconhecido" };
+  }
+}

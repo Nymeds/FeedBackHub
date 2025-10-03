@@ -51,12 +51,12 @@ export default function FeedbackDetail() {
   };
 
   // 🔹 Carrega feedback
-  useEffect(() => {
+   useEffect(() => {
     const loadFeedback = async () => {
       setLoading(true);
       try {
-        const fb = await getFeedbackById(idfeedback); // já retorna fb.data do API
-        setFeedback(fb);
+        const response = await getFeedbackById(idfeedback);
+        setFeedback(response.data); 
       } catch (err: any) {
         console.error("Erro ao carregar feedback:", err);
         showToast("Feedback não encontrado");
@@ -124,28 +124,7 @@ export default function FeedbackDetail() {
         title={feedback.titulo}
         onBack={() => navigation.goBack()}
         onEdit={() => navigation.navigate("FeedbackForm", { idfeedback })}
-        onDelete={async () => {
-          Alert.alert(
-            "Confirmação",
-            "Deseja realmente deletar este feedback?",
-            [
-              { text: "Cancelar", style: "cancel" },
-              {
-                text: "Deletar",
-                style: "destructive",
-                onPress: async () => {
-                  try {
-                    await deleteFeedback(idfeedback);
-                    showToast("Feedback deletado!");
-                    navigation.goBack();
-                  } catch (err: any) {
-                    showToast(err?.message || "Erro ao deletar feedback");
-                  }
-                },
-              },
-            ]
-          );
-        }}
+        
       />
 
       <View style={{ flex: 1 }}>

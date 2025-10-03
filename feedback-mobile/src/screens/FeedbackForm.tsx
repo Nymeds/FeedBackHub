@@ -20,6 +20,7 @@ import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
 import { CATEGORIAS, STATUS, Categoria, Status } from "../utils/enums";
 import { useToast } from "../context/ToastProvider";
+import AppHeader from "../components/AppHeader";
 
 const feedbackSchema = yup.object({
   titulo: yup.string().min(3, "Mínimo 3 caracteres").required("Título obrigatório"),
@@ -68,7 +69,7 @@ export default function FeedbackForm() {
       try {
         const fb = await getFeedbackById(idfeedback!);
         setFeedback(fb);
-        reset(fb); // Popula o form com os dados existentes
+        reset(fb);
       } catch {
         showToast("Não foi possível carregar o feedback.");
       } finally {
@@ -104,6 +105,25 @@ export default function FeedbackForm() {
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
+      {/* Header customizado */}
+      <AppHeader
+        title={isEdit ? feedback?.titulo || "Editar Feedback" : "Criar Feedback"}
+        onBack={() => navigation.goBack()}
+        onDelete={
+          isEdit
+            ? async () => {
+                try {
+                  await deleteFeedback(idfeedback!);
+                  showToast("Feedback deletado!");
+                  navigation.goBack();
+                } catch (err: any) {
+                  showToast(err?.message || "Erro ao deletar feedback");
+                }
+              }
+            : undefined
+        }
+      />
+
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <AppInput
           label="Título"

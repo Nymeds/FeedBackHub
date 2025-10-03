@@ -7,11 +7,10 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../navigation/AppStack";
-import { getFeedbackById, deleteFeedback, type Feedback } from "../../api/feedbacks";
+import { getFeedbackById, type Feedback } from "../../api/feedbacks";
 import { useComments } from "../../hooks/useComments";
 import AppHeader from "../../components/AppHeader";
 import CommentCard from "../../components/CommentCard";
@@ -22,10 +21,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { schema } from "./Schema";
 import { styles } from "./Styles";
 
-type FormData = {
-  autor: string;
-  conteudo: string;
-};
+type FormData = { autor: string; conteudo: string };
 
 export default function FeedbackDetail() {
   const route = useRoute<RouteProp<RootStackParamList, "FeedbackDetail">>();
@@ -51,27 +47,37 @@ export default function FeedbackDetail() {
   };
 
   // 🔹 Carrega feedback
-   useEffect(() => {
+  useEffect(() => {
     const loadFeedback = async () => {
       setLoading(true);
       try {
-        const response = await getFeedbackById(idfeedback);
-        setFeedback(response.data); 
+        const feedbackData = await getFeedbackById(idfeedback);
+        setFeedback(feedbackData);
       } catch (err: any) {
         console.error("Erro ao carregar feedback:", err);
         showToast("Feedback não encontrado");
+        navigation.goBack();
       } finally {
         setLoading(false);
       }
     };
-
     loadFeedback();
   }, [idfeedback]);
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 20 }} size="large" />;
-  if (!feedback) return <Text style={styles.message}>Feedback não encontrado.</Text>;
+  if (loading)
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
 
-  // 🔹 Datas formatadas
+  if (!feedback)
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={styles.message}>Feedback não encontrado.</Text>
+      </View>
+    );
+
   const createdAt = new Date(feedback.createdAt).toLocaleString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
@@ -121,10 +127,9 @@ export default function FeedbackDetail() {
     >
       {/* Header customizado */}
       <AppHeader
-        title={feedback.titulo}
+        title={feedback.titulo || "Detalhes do Feedback"}
         onBack={() => navigation.goBack()}
-        onEdit={() => navigation.navigate("FeedbackForm", { idfeedback })}
-        
+        onEdit={() => feedback && navigation.navigate("FeedbackForm", { idfeedback })}
       />
 
       <View style={{ flex: 1 }}>

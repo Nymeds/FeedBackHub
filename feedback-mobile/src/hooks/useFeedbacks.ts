@@ -1,15 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* src/hooks/useFeedbacks.ts */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import debounce from "lodash.debounce";
-import {
-  getFeedbacks,
-  createFeedback,
-  updateFeedback,
-  deleteFeedback,
-  type Feedback,
-} from "../api/feedbacks";
+import { getFeedbacks, type Feedback } from "../api/feedbacks";
 
-export function useFeedbacks(initialPage = 1, limit = 10) { 
+export function useFeedbacks(initialPage = 1, limit = 10) {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,32 +11,36 @@ export function useFeedbacks(initialPage = 1, limit = 10) {
   const [search, setSearch] = useState("");
   const [hasMore, setHasMore] = useState(true);
 
+  // fetchFeedbacks(reset?: boolean)
   const fetchFeedbacks = useCallback(
     async (reset = false) => {
-      if (loading) return;
+      // se já estiver carregando e não for reset, evita concorrência
+      if (loading && !reset) return;
 
       setLoading(true);
       setError(null);
 
       try {
-        const currentPage = reset ? 1 : page;
-        const data = await getFeedbacks(currentPage, limit, search);
-        const items = data.items || [];
+        const pageToLoad = reset ? 1 : page;
+        // getFeedbacks retorna res.data (com { items: Feedback[] })
+        const data = await getFeedbacks(pageToLoad, limit, search);
+        const items = data?.items ?? [];
 
-        setFeedbacks((prev) => {
+        setFeedbacks(prev => {
           const combined = reset ? items : [...prev, ...items];
-
-          // Remove duplicados pelo idfeedback
-          const uniqueMap = new Map<string, Feedback>();
-          combined.forEach(f => uniqueMap.set(f.idfeedback, f));
-
-          return Array.from(uniqueMap.values());
+          // Remove duplicados por idfeedback, mantendo a primeira ocorrência
+          const map = new Map<string, Feedback>();
+          for (const f of combined) {
+            if (!map.has(f.idfeedback)) map.set(f.idfeedback, f);
+          }
+          return Array.from(map.values());
         });
 
         setHasMore(items.length === limit);
+        if (reset) setPage(1);
       } catch (err: any) {
         console.error("Erro ao buscar feedbacks:", err);
-        setError(err?.message || "Erro desconhecido");
+        setError(err?.message ?? "Erro desconhecido");
       } finally {
         setLoading(false);
       }
@@ -50,18 +48,19 @@ export function useFeedbacks(initialPage = 1, limit = 10) {
     [page, limit, search, loading]
   );
 
-  // Sempre que muda a página, carrega os próximos
+  // Quando a página muda (p.ex. setPage foi chamado), busca aquela página
   useEffect(() => {
-    fetchFeedbacks(page === 1);
-  }, [page, fetchFeedbacks]);
+    fetchFeedbacks(); // busca sem reset (page atual)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
+  // Busca debounced
   const handleSearch = useMemo(
     () =>
       debounce((text: string) => {
         setSearch(text);
-        setPage(1);
         setHasMore(true);
-        fetchFeedbacks(true);
+        fetchFeedbacks(true); // reset
       }, 500),
     [fetchFeedbacks]
   );
@@ -70,6 +69,7 @@ export function useFeedbacks(initialPage = 1, limit = 10) {
     return () => handleSearch.cancel();
   }, [handleSearch]);
 
+  // expõe fetchFeedbacks para ser chamado externamente (pass true para reset)
   return {
     feedbacks,
     loading,
@@ -77,7 +77,7 @@ export function useFeedbacks(initialPage = 1, limit = 10) {
     page,
     setPage,
     hasMore,
-    fetchFeedbacks,
+    fetchFeedbacks, // signature: (reset?: boolean) => Promise<void>
     handleSearch,
   };
 }

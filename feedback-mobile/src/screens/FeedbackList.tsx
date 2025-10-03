@@ -29,15 +29,14 @@ export default function FeedbackList() {
     hasMore,
     fetchFeedbacks,
     handleSearch,
-  } = useFeedbacks();
+  } = useFeedbacks(1, 10); // limite 10 por página
 
   const [refreshing, setRefreshing] = useState(false);
   const endReachedRef = useRef(false); // evita múltiplos triggers rápidos
 
-  // Recarregar ao focar (reset)
+  // Recarregar ao focar (reset para a página 1)
   useFocusEffect(
     useCallback(() => {
-      // força recarregar a primeira página ao voltar para a tela
       fetchFeedbacks(true).catch(() => {});
     }, [fetchFeedbacks])
   );
@@ -46,7 +45,7 @@ export default function FeedbackList() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await fetchFeedbacks(true);
+      await fetchFeedbacks(true); // reset
     } finally {
       setRefreshing(false);
     }
@@ -55,16 +54,13 @@ export default function FeedbackList() {
   // Carregar mais quando chegar no fim da lista
   const loadMore = useCallback(() => {
     if (loading || !hasMore) return;
-
-    // simples debounce para onEndReached (previne múltiplos triggers)
     if (endReachedRef.current) return;
     endReachedRef.current = true;
-    // incrementa página de forma segura
-    setPage((prev) => prev + 1);
-    // libera após um pequeno atraso (evita chamadas repetidas)
+    setPage(prev => prev + 1);
+    // libera flag após pequeno atraso para evitar vários triggers
     setTimeout(() => {
       endReachedRef.current = false;
-    }, 800);
+    }, 700);
   }, [loading, hasMore, setPage]);
 
   const renderItem = useCallback(
@@ -95,7 +91,7 @@ export default function FeedbackList() {
         ) : (
           <FlatList
             data={feedbacks}
-            keyExtractor={(item) => item.idfeedback}
+            keyExtractor={(item, index) => item.idfeedback ?? String(index)}
             renderItem={renderItem}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
             contentContainerStyle={styles.contentContainer}
@@ -118,6 +114,7 @@ export default function FeedbackList() {
               ) : null
             }
             showsVerticalScrollIndicator={false}
+            initialNumToRender={10}
           />
         )}
       </View>

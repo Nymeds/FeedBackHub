@@ -42,6 +42,7 @@ export default function FeedbackForm() {
   const { idfeedback } = route.params || {};
   const isEdit = !!idfeedback;
   const { showToast } = useToast();
+
   const [loading, setLoading] = useState(isEdit);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
 
@@ -60,19 +61,15 @@ export default function FeedbackForm() {
     },
   });
 
-  // Carrega feedback existente para edição
   useEffect(() => {
     if (!isEdit) return;
 
     const loadFeedback = async () => {
       setLoading(true);
       try {
-        const response = await getFeedbackById(idfeedback!);
-        const feedbackData = response.data; // Acessa .data da resposta do Axios
-        
+        const feedbackData = await getFeedbackById(idfeedback!); // retorna diretamente o objeto Feedback
         setFeedback(feedbackData);
-        
-        // Popula o formulário com os dados existentes
+
         reset({
           titulo: feedbackData.titulo,
           descricao: feedbackData.descricao,
@@ -87,7 +84,7 @@ export default function FeedbackForm() {
         setLoading(false);
       }
     };
-    
+
     loadFeedback();
   }, [idfeedback, isEdit, reset, showToast, navigation]);
 
@@ -102,10 +99,10 @@ export default function FeedbackForm() {
       }
       navigation.navigate("FeedbackList");
     } catch (err: any) {
-      if (err.details?.length > 0) {
+      if (err?.details?.length) {
         showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
       } else {
-        showToast(err.message || "Erro desconhecido");
+        showToast(err?.message || "Erro desconhecido");
       }
     }
   };
@@ -120,11 +117,7 @@ export default function FeedbackForm() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      {/* Header customizado */}
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <AppHeader
         title={isEdit ? feedback?.titulo || "Editar Feedback" : "Criar Feedback"}
         onBack={() => navigation.goBack()}
@@ -134,12 +127,7 @@ export default function FeedbackForm() {
                 try {
                   await deleteFeedback(idfeedback!);
                   showToast("Feedback deletado!");
-
-                  // Volta para a lista garantindo que a stack seja atualizada
-                  navigation.reset({
-                    index: 0,
-                    routes: [{ name: "FeedbackList" }],
-                  });
+                  navigation.reset({ index: 0, routes: [{ name: "FeedbackList" }] });
                 } catch (err: any) {
                   showToast(err?.message || "Erro ao deletar feedback");
                 }
@@ -147,7 +135,6 @@ export default function FeedbackForm() {
             : undefined
         }
       />
-
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <AppInput
@@ -169,7 +156,6 @@ export default function FeedbackForm() {
           style={{ minHeight: 100, textAlignVertical: "top" }}
         />
 
-        {/* Categoria Picker */}
         <Controller
           control={control}
           name="categoria"
@@ -188,7 +174,6 @@ export default function FeedbackForm() {
           )}
         />
 
-        {/* Status Picker */}
         <Controller
           control={control}
           name="status"
@@ -210,14 +195,8 @@ export default function FeedbackForm() {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Botões fixos na parte inferior */}
       <View style={styles.bottomButtons}>
-        <AppButton
-          variant="secondary"
-          title="Cancelar"
-          onPress={() => navigation.goBack()}
-          style={{ flex: 1, marginRight: 8 }}
-        />
+        <AppButton variant="secondary" title="Cancelar" onPress={() => navigation.goBack()} style={{ flex: 1, marginRight: 8 }} />
         {isSubmitting ? (
           <ActivityIndicator size="large" style={{ flex: 1 }} />
         ) : (
@@ -234,34 +213,9 @@ export default function FeedbackForm() {
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    padding: 16,
-    paddingBottom: 0,
-    backgroundColor: "#f0f4f8",
-  },
-  label: {
-    marginBottom: 4,
-    fontWeight: "bold",
-    fontSize: 14,
-  },
-  bottomButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#d1d5db",
-    backgroundColor: "#ffffff",
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#cbd5e1",
-    borderRadius: 8,
-    overflow: "hidden",
-    backgroundColor: "#ffffff",
-  },
-  errorText: {
-    color: "#dc2626",
-    marginTop: 6,
-    fontSize: 12,
-  },
+  scrollContainer: { padding: 16, paddingBottom: 0, backgroundColor: "#f0f4f8" },
+  label: { marginBottom: 4, fontWeight: "bold", fontSize: 14 },
+  bottomButtons: { flexDirection: "row", justifyContent: "space-between", padding: 16, borderTopWidth: 1, borderTopColor: "#d1d5db", backgroundColor: "#ffffff" },
+  pickerContainer: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 8, overflow: "hidden", backgroundColor: "#ffffff" },
+  errorText: { color: "#dc2626", marginTop: 6, fontSize: 12 },
 });

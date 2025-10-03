@@ -35,7 +35,8 @@ export default function FeedbackDetailPage() {
     };
 
     loadFeedback();
-  }, [idfeedback, showToast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idfeedback]);
 
   const handleEdit = () => {
     if (!feedback) return;

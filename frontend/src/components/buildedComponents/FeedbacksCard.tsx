@@ -38,14 +38,23 @@ export default function FeedbackCard({
     >
       {/* Topo */}
       <div className="flex justify-between mb-2">
-        <span className="font-bold text-blue-600 truncate max-w-[70%]">{truncateText(categoria, 15)}</span>
-        <span className="font-bold text-green-600 truncate max-w-[30%] text-right capitalize">{truncateText(status.replace("_", " "), 12)}</span>
+        <span className="font-bold text-blue-600 truncate max-w-[70%]">
+          {truncateText(categoria, 15)}
+        </span>
+        <span className="font-bold text-green-600 truncate max-w-[30%] text-right capitalize">
+          {truncateText(status.replace("_", " "), 12)}
+        </span>
       </div>
 
       {/* Meio */}
       <div className="mb-2">
-        <div className="font-bold text-lg">{truncateText(titulo, 30)}</div>
-        <div className="text-gray-800 text-sm">{truncateText(descricao, 80)}</div>
+        {/* Título sempre com ellipsis */}
+        <div className="font-bold text-lg truncate">{truncateText(titulo, 30)}</div>
+
+        {/* Descrição: quebra no mobile, ellipsis no desktop */}
+        <div className="text-gray-800 text-sm break-words sm:truncate sm:max-w-full">
+          {descricao}
+        </div>
       </div>
 
       {/* Rodapé */}

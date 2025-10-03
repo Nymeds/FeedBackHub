@@ -27,22 +27,27 @@ export default function CommentCard({ comment, onEdit, onDelete }: CommentCardPr
   const [errorMessage, setErrorMessage] = useState("");
   const { showToast } = useToast();
 
-  const handleSave = async () => {
-    if (!textUpdate.trim()) return;
-    setSaving(true);
-    try {
-      await onEdit(comment.idcomment, textUpdate);
-      setIsEditing(false);
-    } catch (err: any) {
-      if (err.details?.length > 0) {
-        showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
-      } else {
-        showToast(err.message || "Erro desconhecido");
-      }
-    } finally {
-      setSaving(false);
+const handleSave = async () => {
+  if (!textUpdate.trim()) {
+    showToast("Mensagem não pode estar vazia");
+    return;
+  }
+
+  setSaving(true);
+  try {
+    await onEdit(comment.idcomment, textUpdate);
+    setIsEditing(false);
+  } catch (err: any) {
+    if (err.details?.length > 0) {
+      showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
+    } else {
+      showToast(err.message || "Erro desconhecido");
     }
-  };
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   const handleCancel = () => {
     setTextUpdate(comment.conteudo);

@@ -9,9 +9,7 @@ import AppInput from "../components/buildedComponents/Appinput";
 import { Button } from "../components/baseComponents/button";
 import { useToast } from "../context/ToastProvider";
 import { getFeedbackById, createFeedback, updateFeedback, deleteFeedback } from "../api/feedback";
-
-const CATEGORIAS = ["UI", "UX", "Bug", "Funcionalidade"];
-const STATUS = ["suggestion", "planned", "in-progress", "live"];
+import { CATEGORIAS, STATUS } from "../utils/enums";
 
 const feedbackSchema = yup.object({
   titulo: yup.string().min(3, "Mínimo 3 caracteres").max(100, "Máximo 100 caracteres").required("Título obrigatório"),

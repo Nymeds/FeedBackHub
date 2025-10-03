@@ -46,7 +46,7 @@ export default function FeedbackDetail() {
     });
   };
 
-  // 🔹 Carrega feedback
+
   useEffect(() => {
     const loadFeedback = async () => {
       setLoading(true);

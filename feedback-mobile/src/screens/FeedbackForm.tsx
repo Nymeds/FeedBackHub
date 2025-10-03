@@ -44,9 +44,9 @@ export default function FeedbackForm() {
   const isEdit = !!idfeedback;
   const { showToast } = useToast();
 
-  // Hook centralizado
+  
   const { addFeedback, editFeedback, removeFeedback } = useFeedbacks();
-
+//gambiarra pro spinner de carregamento
   const [loading, setLoading] = useState(isEdit);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
 

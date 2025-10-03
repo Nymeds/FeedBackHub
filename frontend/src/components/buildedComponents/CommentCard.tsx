@@ -76,8 +76,8 @@ const handleSave = async () => {
     {/* Autor truncado */}
     <span
       className="font-bold text-sm truncate"
-      style={{ maxWidth: "100px" }} // autor não passa de ~10 caracteres
-      title={comment.autor} // mostra o nome completo ao passar o mouse
+      style={{ maxWidth: "100px" }} 
+      title={comment.autor} 
     >
       {comment.autor || "Anônimo"}
     </span>
@@ -129,13 +129,13 @@ const handleSave = async () => {
       className="w-full border rounded p-2 text-sm"
       value={textUpdate}
       onChange={(e) => setTextUpdate(e.target.value)}
-      rows={3}
+      rows={4}
       disabled={saving}
     />
   ) : (
     <p
       className="text-gray-700 text-sm break-words"
-      style={{ maxWidth: "40ch", whiteSpace: "pre-wrap" }}
+      style={{ maxWidth: "70ch", whiteSpace: "pre-wrap" }}
     >
       {comment.conteudo}
     </p>

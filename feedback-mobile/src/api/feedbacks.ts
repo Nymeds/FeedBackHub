@@ -2,7 +2,7 @@
 import { api } from "./api";
 
 export type Feedback = {
-  [x: string]: SetStateAction<Feedback | null>;
+ 
   idfeedback: string;
   titulo: string;
   descricao: string;

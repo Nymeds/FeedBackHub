@@ -14,7 +14,7 @@ export class UpdateFeedbackUseCase {
   async execute(idfeedback: string, data: unknown) {
     const validated = schema.parse(data);
 
-    // Rejeita payload vazio
+   
     if (Object.keys(validated).length === 0) {
       throw new ZodError([
         {

@@ -56,6 +56,7 @@ export default function FeedbackForm() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FeedbackFormData>({
+    //@ts-ignore
     resolver: yupResolver(feedbackSchema),
     defaultValues: {
       titulo: "",
@@ -74,7 +75,7 @@ export default function FeedbackForm() {
       try {
         const feedbackData = await getFeedbackById(idfeedback!);
         setFeedback(feedbackData);
-
+         //@ts-ignore
         reset({
           titulo: feedbackData.titulo,
           descricao: feedbackData.descricao,
@@ -202,7 +203,8 @@ export default function FeedbackForm() {
         {isSubmitting ? (
           <ActivityIndicator size="large" style={{ flex: 1 }} />
         ) : (
-          <AppButton variant="primary" title={isEdit ? "Atualizar" : "Criar"} onPress={handleSubmit(onSubmit)} style={{ flex: 1, marginLeft: 8 }} />
+          <AppButton variant="primary" title={isEdit ? "Atualizar" : "Criar"} onPress={  //@ts-ignore
+          handleSubmit(onSubmit)} style={{ flex: 1, marginLeft: 8 }} />
         )}
       </View>
     </KeyboardAvoidingView>

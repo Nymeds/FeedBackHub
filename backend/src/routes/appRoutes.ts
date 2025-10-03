@@ -12,20 +12,16 @@ import { deleteCommentController } from "../controllers/comment/delete";
 
 
 export async function appRoutes(app: FastifyInstance) {
-  // -------------------------
-  // Feedbacks
-  // -------------------------
-  app.get("/feedbacks", listFeedbacksController); // lista com paginação e busca
-  app.get("/feedbacks/:idfeedback", getFeedbackController); // detalhe de um feedback
-  app.post("/feedbacks", createFeedbackController); // criar
-  app.put("/feedbacks/:idfeedback", updateFeedbackController); // atualizar
-  app.delete("/feedbacks/:idfeedback", deleteFeedbackController); // deletar
+ 
+  app.get("/feedbacks", listFeedbacksController); 
+  app.get("/feedbacks/:idfeedback", getFeedbackController); 
+  app.post("/feedbacks", createFeedbackController); 
+  app.put("/feedbacks/:idfeedback", updateFeedbackController); 
+  app.delete("/feedbacks/:idfeedback", deleteFeedbackController); 
 
-  // -------------------------
-  // Comments
-  // -------------------------
-  app.get("/feedbacks/:idfeedback/comments", listCommentController); // lista comentários de um feedback
-  app.post("/feedbacks/:idfeedback/comments", createCommentController); // criar comentário
-  app.put("/comments/:idcomment", updateCommentController); // atualizar comentário
-  app.delete("/comments/:idcomment", deleteCommentController); // deletar comentário
+
+  app.get("/feedbacks/:idfeedback/comments", listCommentController); 
+  app.post("/feedbacks/:idfeedback/comments", createCommentController); 
+  app.put("/comments/:idcomment", updateCommentController); 
+  app.delete("/comments/:idcomment", deleteCommentController); 
 }

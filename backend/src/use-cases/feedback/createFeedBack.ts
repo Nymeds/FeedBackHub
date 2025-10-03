@@ -6,8 +6,7 @@ export class CreateFeedbackUseCase {
   constructor(private feedbacksRepo = new FeedbacksPrismaRepository()) {}
 
   async execute(payload: unknown): Promise<Feedback> {
-    // Schema local de validação
-    // trocar para um arquivo separado
+    
     const schema = z.object({
       titulo: z.string().min(3, "O título deve ter pelo menos 3 caracteres"),
       descricao: z.string().min(10, "A descrição deve ter pelo menos 10 caracteres"),
@@ -19,7 +18,7 @@ export class CreateFeedbackUseCase {
    
     const validated = schema.parse(payload);
 
-    // Monta o objeto final que o repositório espera
+    
     const data = {
       titulo: validated.titulo,
       descricao: validated.descricao,

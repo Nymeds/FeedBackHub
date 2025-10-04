@@ -1,0 +1,190 @@
+# 🌐 Feedback Web App - Frontend
+
+Aplicação web para gerenciamento de feedbacks e comentários, construída com React, TypeScript e Vite.
+
+---
+
+## 📋 Requisitos
+
+- **Node.js** >= 20.x
+- **npm** ou **yarn**
+- **Backend rodando** em `http://localhost:3000`
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+- **React 18** - Biblioteca para interfaces de usuário
+- **TypeScript** - Superset tipado de JavaScript
+- **Vite** - Build tool moderna e rápida
+- **React Router DOM** - Roteamento de páginas
+- **React Hook Form** - Gerenciamento de formulários
+- **Yup** - Validação de schemas
+- **Axios** - Cliente HTTP
+- **Tailwind CSS** - Framework de estilização utilitária
+- **Lucide React** - Ícones modernos
+- **Lodash** - Utilitários JavaScript
+
+---
+
+## 📦 Instalação
+
+### 1. Clone o repositório
+```bash
+git clone <url-do-repositorio>
+cd frontend
+```
+
+### 2. Instale as dependências
+```bash
+npm install
+# ou
+yarn install
+```
+
+
+```
+
+### 4. Certifique-se de que o backend está rodando
+A aplicação precisa do backend ativo em `http://localhost:3000`
+
+---
+
+## 🚀 Como Rodar
+
+### Modo de desenvolvimento
+```bash
+npm run dev
+# ou
+yarn dev
+```
+
+A aplicação estará disponível em: **http://localhost:5173**
+
+
+
+---
+
+## 📱 Funcionalidades
+
+### ✅ Dashboard
+- Lista de feedbacks com paginação infinita
+- Busca por título ou descrição com debounce
+- Ordenação por data de criação
+- Contador de comentários por feedback
+- Visualização de categoria e status
+
+### ✅ Detalhes do Feedback
+- Visualização completa do feedback
+- Lista de comentários
+- Criação, edição e exclusão de comentários
+- Edição do feedback
+- Timestamps de criação e atualização
+
+### ✅ Formulário de Feedback
+- Criação de novos feedbacks
+- Edição de feedbacks existentes
+- Validação em tempo real
+- Seleção de categoria e status
+- Exclusão de feedbacks
+
+### ✅ Recursos Extras
+- Toast notifications para feedback visual
+- Estados de loading, empty e error
+- Confirmação antes de deletar
+- Layout totalmente responsivo
+- Navegação intuitiva
+
+---
+
+## 📂 Estrutura do Projeto
+
+```
+frontend/
+├── public/                  # Arquivos públicos
+├── src/
+│   ├── api/                 # Configuração de API e chamadas HTTP
+│   │   ├── api.ts           # Instância do Axios
+│   │   ├── feedback.ts      # Endpoints de feedbacks
+│   │   └── comments.ts      # Endpoints de comentários
+│   ├── components/
+│   │   ├── baseComponents/  # Componentes básicos reutilizáveis
+│   │   └── buildedComponents/ # Componentes específicos
+│   ├── context/             # Contextos do React
+│   │   └── ToastProvider.tsx # Provider de notificações
+│   ├── hooks/               # Custom hooks
+│   │   ├── useFeedbacks.ts
+│   │   └── useComments.ts
+│   ├── pages/               # Páginas da aplicação
+│   │   ├── Dashboard.tsx
+│   │   ├── FeedBackDetails.tsx
+│   │   └── FeedBackForm.tsx
+│   ├── utils/               # Utilitários
+│   │   └── enums.ts         # Enums de categoria e status
+│   ├── App.tsx              # Componente principal
+│   ├── main.tsx             # Entry point
+│   └── index.css            # Estilos globais
+├── .env                     # Variáveis de ambiente
+├── package.json
+├── vite.config.ts
+├── tailwind.config.js
+└── tsconfig.json
+```
+
+---
+
+## 🎨 Componentes Principais
+
+### **Dashboard**
+- Exibe lista de feedbacks com scroll infinito
+- Campo de busca com debounce
+- Botão para criar novo feedback
+
+### **FeedbackCard**
+- Card visual com informações do feedback
+- Exibe categoria, status, título, descrição
+- Mostra contador de comentários e data de criação
+
+### **FeedbackDetailPage**
+- Detalhes completos do feedback
+- Lista de comentários com edição inline
+- Formulário para adicionar novos comentários
+
+### **FeedbackFormPage**
+- Formulário completo com validação
+- Modo criação e edição
+- Seleção de categoria e status via dropdown
+
+---
+
+## 🔌 Integração com API
+
+A aplicação consome a API backend através do Axios:
+
+
+Todas as chamadas incluem:
+- Tratamento de erros padronizado
+- Loading states
+- Toast notifications para feedback visual
+
+---
+
+## 🎨 Estilização
+
+O projeto utiliza **Tailwind CSS** para estilização:
+- Design system consistente
+- Responsividade mobile-first
+- Modo claro (light mode)
+- Componentes com `tailwind-variants`
+
+---
+
+## ⚡ Performance
+
+- **Code Splitting** automático pelo Vite
+- **Lazy Loading** de imagens e componentes
+- **Debounce** na busca para reduzir requisições
+- **Infinite Scroll** eficiente
+- **React Query** (opcional) para cache
+
+---

@@ -40,6 +40,7 @@ export default function FeedbackList() {
     }
   }, [fetchFeedbacks]);
 
+
   const loadMore = useCallback(() => {
     if (loading || !hasMore || endReachedRef.current) return;
     endReachedRef.current = true;
@@ -54,7 +55,6 @@ export default function FeedbackList() {
         descricao={item.descricao}
         categoria={item.categoria}
         status={item.status}
-        autor={item.autor || "Anônimo"}
         commentsCount={item.commentsCount || 0}
         createdAt={item.createdAt}
         onPress={() => navigation.navigate("FeedbackDetail", { idfeedback: item.idfeedback })}
@@ -75,6 +75,7 @@ export default function FeedbackList() {
         ) : (
           <FlatList
             data={feedbacks}
+            //segurnça para o index
             keyExtractor={(item, index) => item.idfeedback ?? String(index)}
             renderItem={renderItem}
             ItemSeparatorComponent={() => <View style={styles.separator} />}

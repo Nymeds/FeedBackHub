@@ -1,0 +1,216 @@
+# 🚀 Feedback API - Backend
+
+API RESTful para gerenciamento de feedbacks e comentários, construída com Node.js, Fastify, Prisma ORM e SQLite.
+
+---
+
+## 📋 Requisitos
+
+- **Node.js** >= 20.x
+- **npm** ou **yarn**
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+- **Fastify** - Framework web rápido e eficiente
+- **Prisma ORM** - ORM moderno para TypeScript
+- **SQLite** - Banco de dados leve e embutido
+- **Zod** - Validação de esquemas TypeScript-first
+- **TypeScript** - Superset tipado de JavaScript
+- **@fastify/cors** - Middleware CORS para Fastify
+
+---
+
+## 📦 Instalação
+
+### 1. Clone o repositório
+```bash
+git clone <url-do-repositorio>
+cd backend
+```
+
+### 2. Instale as dependências
+```bash
+npm install
+# ou
+yarn install
+```
+
+### 3. Configure as variáveis de ambiente
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+DATABASE_URL="file:./dev.db"
+PORT=3000
+```
+
+### 4. Execute as migrations do banco de dados
+```bash
+npx prisma migrate deploy
+# ou
+npx prisma migrate dev
+```
+
+### 5. (Opcional) Execute o seed para popular o banco
+```bash
+npx prisma db seed
+```
+
+---
+
+## 🚀 Como Rodar
+
+### Modo de desenvolvimento
+```bash
+npm run dev
+# ou
+yarn dev
+```
+
+### Modo de produção
+```bash
+npm run build
+npm start
+# ou
+yarn build
+yarn start
+```
+
+A API estará disponível em: **http://localhost:3000**
+
+---
+
+## 📚 Endpoints da API
+
+### **Feedbacks**
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/feedbacks` | Lista todos os feedbacks (com paginação e busca) |
+| `GET` | `/feedbacks/:idfeedback` | Busca um feedback específico |
+| `POST` | `/feedbacks` | Cria um novo feedback |
+| `PUT` | `/feedbacks/:idfeedback` | Atualiza um feedback existente |
+| `DELETE` | `/feedbacks/:idfeedback` | Deleta um feedback |
+
+**Query Params para listagem:**
+- `_page` (número) - Página atual (padrão: 1)
+- `_limit` (número) - Itens por página (padrão: 10)
+- `q` (string) - Busca textual em título e descrição
+
+**Exemplo de requisição POST:**
+```json
+{
+  "titulo": "Adicionar modo escuro",
+  "descricao": "Seria ótimo ter um tema escuro para uso noturno.",
+  "categoria": "UI",
+  "status": "suggestion"
+}
+```
+
+---
+
+### **Comentários**
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/feedbacks/:idfeedback/comments` | Lista comentários de um feedback |
+| `POST` | `/feedbacks/:idfeedback/comments` | Cria um comentário em um feedback |
+| `PUT` | `/comments/:idcomment` | Atualiza um comentário |
+| `DELETE` | `/comments/:idcomment` | Deleta um comentário |
+
+**Exemplo de requisição POST:**
+```json
+{
+  "autor": "João Silva",
+  "conteudo": "Concordo, facilitaria bastante à noite."
+}
+```
+
+---
+
+## 📊 Modelo de Dados
+
+### **Feedback**
+```typescript
+{
+  idfeedback: string (UUID)
+  titulo: string (mín. 3 caracteres)
+  descricao: string (mín. 10 caracteres)
+  categoria: "UI" | "UX" | "Feature" | "Bug" | "Performance" | "Other"
+  status: "suggestion" | "planned" | "in_progress" | "done"
+  createdAt: DateTime
+  updatedAt: DateTime
+  commentsCount: number
+}
+```
+
+### **Comment**
+```typescript
+{
+  idcomment: string (UUID)
+  idfeedback: string (UUID)
+  autor: string (mín. 2 caracteres)
+  conteudo: string (mín. 5 caracteres)
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+```
+
+---
+
+## 🧪 Validações
+
+- **Título**: mínimo 3 caracteres
+- **Descrição**: mínimo 10 caracteres
+- **Categoria**: enum fixo
+- **Status**: enum fixo (padrão: "suggestion")
+- **Autor**: mínimo 2 caracteres
+- **Conteúdo**: mínimo 5 caracteres
+
+---
+
+## ⚠️ Tratamento de Erros
+
+A API retorna erros padronizados no formato:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Dados inválidos",
+    "details": [
+      {
+        "field": "titulo",
+        "message": "mínimo 3 caracteres"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 🗂️ Estrutura do Projeto
+
+```
+backend/
+├── prisma/
+│   ├── migrations/          # Migrações do banco
+│   ├── schema.prisma        # Schema do Prisma
+│   └── seed.ts              # Dados iniciais
+├── src/
+│   ├── controllers/         # Controladores das rotas
+│   ├── use-cases/           # Casos de uso (regras de negócio)
+│   ├── repositories/        # Repositórios de dados
+│   ├── routes/              # Definição de rotas
+│   ├── utils/               # Utilitários
+│   ├── env/                 # Configurações de ambiente
+│   ├── app.ts               # Configuração do Fastify
+│   └── server.ts            # Inicialização do servidor
+├── .env                     # Variáveis de ambiente
+├── package.json
+└── tsconfig.json
+```
+
+---

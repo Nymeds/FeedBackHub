@@ -194,7 +194,7 @@ export default function FeedbackDetail() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   contentWrapper: { flex: 1 },
-  scrollContent: { padding: 12, paddingBottom: 150 }, // garante espaço para o footer
+  scrollContent: { padding: 12, paddingBottom: 150 },
   centered: { flex: 1, justifyContent: "center", alignItems: "center" },
   message: { fontSize: 16, color: "#333" },
   infoGrid: { flexDirection: "row", justifyContent: "space-between", marginVertical: 8 },

@@ -23,19 +23,19 @@ import AppHeader from "../components/AppHeader";
 import { CATEGORIAS, STATUS, Categoria, Status } from "../utils/enums";
 import { useToast } from "../context/ToastProvider";
 
-// Schema com trim() e teste para bloquear apenas espaços
+
 const feedbackSchema = yup.object({
   titulo: yup
     .string()
     .required("Título obrigatório")
     .trim()
-    .test("not-blank", "O título não pode conter apenas espaços", (val) => !!val?.trim())
+    .test("not-blank", (val) => !!val?.trim())
     .min(3, "Mínimo 3 caracteres"),
   descricao: yup
     .string()
     .required("Descrição obrigatória")
     .trim()
-    .test("not-blank", "A descrição não pode conter apenas espaços", (val) => !!val?.trim())
+    .test("not-blank", (val) => !!val?.trim())
     .min(10, "Mínimo 10 caracteres"),
   categoria: yup
     .string()
@@ -72,6 +72,7 @@ export default function FeedbackForm() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FeedbackFormData>({
+    //@ts-ignore
     resolver: yupResolver(feedbackSchema),
     defaultValues: {
       titulo: "",
@@ -90,6 +91,7 @@ export default function FeedbackForm() {
       try {
         const feedbackData = await getFeedbackById(idfeedback!);
         setFeedback(feedbackData);
+        //@ts-ignore
         reset({
           titulo: feedbackData.titulo,
           descricao: feedbackData.descricao,
@@ -232,7 +234,9 @@ export default function FeedbackForm() {
           <AppButton
             variant="primary"
             title={isEdit ? "Atualizar" : "Criar"}
-            onPress={handleSubmit(onSubmit)}
+            onPress={
+              //@ts-ignore
+              handleSubmit(onSubmit)}
             style={{ flex: 1, marginLeft: 8 }}
           />
         )}

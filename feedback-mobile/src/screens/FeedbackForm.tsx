@@ -23,26 +23,28 @@ import AppHeader from "../components/AppHeader";
 import { CATEGORIAS, STATUS, Categoria, Status } from "../utils/enums";
 import { useToast } from "../context/ToastProvider";
 
-// Schema com trim() para bloquear só espaços
+// Schema com trim() e teste para bloquear apenas espaços
 const feedbackSchema = yup.object({
   titulo: yup
     .string()
-    .trim("O título não pode conter apenas espaços")
-    .min(3, "Mínimo 3 caracteres")
-    .required("Título obrigatório"),
+    .required("Título obrigatório")
+    .trim()
+    .test("not-blank", "O título não pode conter apenas espaços", (val) => !!val?.trim())
+    .min(3, "Mínimo 3 caracteres"),
   descricao: yup
     .string()
-    .trim("A descrição não pode conter apenas espaços")
-    .min(10, "Mínimo 10 caracteres")
-    .required("Descrição obrigatória"),
+    .required("Descrição obrigatória")
+    .trim()
+    .test("not-blank", "A descrição não pode conter apenas espaços", (val) => !!val?.trim())
+    .min(10, "Mínimo 10 caracteres"),
   categoria: yup
     .string()
-    .oneOf(CATEGORIAS as unknown as string[], "Categoria inválida")
-    .required("Categoria obrigatória"),
+    .required("Categoria obrigatória")
+    .oneOf(CATEGORIAS as unknown as string[], "Categoria inválida"),
   status: yup
     .string()
-    .oneOf(STATUS as unknown as string[], "Status inválido")
-    .required("Status obrigatório"),
+    .required("Status obrigatório")
+    .oneOf(STATUS as unknown as string[], "Status inválido"),
 });
 
 type FeedbackFormData = {
@@ -61,7 +63,6 @@ export default function FeedbackForm() {
 
   const { addFeedback, editFeedback, removeFeedback } = useFeedbacks();
 
-  // Spinner de carregamento
   const [loading, setLoading] = useState(isEdit);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
 
@@ -71,7 +72,6 @@ export default function FeedbackForm() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FeedbackFormData>({
-     // @ts-ignore
     resolver: yupResolver(feedbackSchema),
     defaultValues: {
       titulo: "",
@@ -84,15 +84,13 @@ export default function FeedbackForm() {
   // Carregar feedback para edição
   useEffect(() => {
     if (!isEdit) return;
-    
+
     const loadFeedback = async () => {
       setLoading(true);
       try {
         const feedbackData = await getFeedbackById(idfeedback!);
         setFeedback(feedbackData);
-         // @ts-ignore
         reset({
-         
           titulo: feedbackData.titulo,
           descricao: feedbackData.descricao,
           categoria: feedbackData.categoria,
@@ -112,12 +110,19 @@ export default function FeedbackForm() {
 
   // Submit (criar/editar)
   const onSubmit: SubmitHandler<FeedbackFormData> = async (data) => {
+    const trimmedData = {
+      titulo: data.titulo.trim(),
+      descricao: data.descricao.trim(),
+      categoria: data.categoria,
+      status: data.status,
+    };
+
     try {
       if (isEdit && idfeedback) {
-        await editFeedback(idfeedback, data);
+        await editFeedback(idfeedback, trimmedData);
         showToast("Feedback atualizado!");
       } else {
-        await addFeedback(data);
+        await addFeedback(trimmedData);
         showToast("Feedback criado!");
       }
       navigation.navigate("FeedbackList");
@@ -126,7 +131,7 @@ export default function FeedbackForm() {
     }
   };
 
-  // Deletar
+  // Deletar feedback
   const handleDelete = async () => {
     if (!idfeedback) return;
     try {
@@ -227,7 +232,6 @@ export default function FeedbackForm() {
           <AppButton
             variant="primary"
             title={isEdit ? "Atualizar" : "Criar"}
-            //@ts-ignore
             onPress={handleSubmit(onSubmit)}
             style={{ flex: 1, marginLeft: 8 }}
           />

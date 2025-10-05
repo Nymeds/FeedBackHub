@@ -14,7 +14,7 @@ export default function FeedbackDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Pega feedback vindo via navigate state (opcional)
+  // Pega feedback
   const feedbackFromState = location.state?.feedback;
 
   const [feedback, setFeedback] = useState<any>(feedbackFromState || null);

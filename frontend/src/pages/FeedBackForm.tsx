@@ -17,14 +17,14 @@ const feedbackSchema = yup.object({
     .string()
     .trim()
     .required("Título obrigatório")
-    .test("not-blank", "Título não pode estar em branco", (val) => !!val?.trim())
+    .test("", (val) => !!val?.trim())
     .min(3, "Mínimo 3 caracteres")
     .max(100, "Máximo 100 caracteres"),
   descricao: yup
     .string()
     .trim()
     .required("Descrição obrigatória")
-    .test("not-blank", "Descrição não pode estar em branco", (val) => !!val?.trim())
+    .test("", (val) => !!val?.trim())
     .min(10, "Mínimo 10 caracteres")
     .max(1000, "Máximo 1000 caracteres"),
   categoria: yup

@@ -23,6 +23,7 @@ export default function FeedbackList() {
   } = useFeedbacks(1, 10);
 
   const [refreshing, setRefreshing] = useState(false);
+  // final rescente da lista , flag
   const endReachedRef = useRef(false);
 
   useFocusEffect(

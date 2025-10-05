@@ -21,18 +21,18 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
-// Schema atualizado para não permitir apenas espaços
+
 const schema = yup.object({
   autor: yup
     .string()
     .trim()
     .required("O autor é obrigatório")
-    .test("not-blank", "O autor não pode estar em branco", (val) => !!val?.trim()),
+    .test("not-blank", "", (val) => !!val?.trim()),
   conteudo: yup
     .string()
     .trim()
     .required("O comentário é obrigatório")
-    .test("not-blank", "O comentário não pode estar em branco", (val) => !!val?.trim()),
+    .test("not-blank", "", (val) => !!val?.trim()),
 });
 
 type FormData = { autor: string; conteudo: string };
@@ -54,7 +54,7 @@ export default function FeedbackDetail() {
     handleSubmit,
     reset,
     setError,
-    clearErrors, // limpar erros ao digitar
+    clearErrors, 
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: { autor: "", conteudo: "" },

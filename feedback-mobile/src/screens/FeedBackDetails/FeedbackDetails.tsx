@@ -54,7 +54,6 @@ export default function FeedbackDetail() {
     handleSubmit,
     reset,
     setError,
-    clearErrors, 
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: { autor: "", conteudo: "" },

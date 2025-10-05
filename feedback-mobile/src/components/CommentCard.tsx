@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Comment } from "../api/comments";
-import ErrorToast from "./ToastCard";
 import { useToast } from "../context/ToastProvider";
 
 interface CommentCardProps {
@@ -26,9 +25,14 @@ export default function CommentCard({ comment, idfeedback, onEdit, onDelete }: C
   const [deleting, setDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const { showToast } = useToast();
+
   // Salvar edição
   const handleSave = async () => {
-    if (!textUpdate.trim()) return;
+    if (!textUpdate.trim()) {
+      setErrorMessage("O comentário não pode ser vazio");
+      return;
+    }
+    setErrorMessage(""); // limpa erro
     setSaving(true);
     try {
       await onEdit(comment.idcomment, textUpdate);
@@ -37,7 +41,7 @@ export default function CommentCard({ comment, idfeedback, onEdit, onDelete }: C
       if (err.details?.length > 0) {
         showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
       } else {
-         showToast(err.message || "Erro desconhecido");
+        showToast(err.message || "Erro desconhecido");
       }
     } finally {
       setSaving(false);
@@ -47,43 +51,45 @@ export default function CommentCard({ comment, idfeedback, onEdit, onDelete }: C
   // Cancelar edição
   const handleCancel = () => {
     setTextUpdate(comment.conteudo);
+    setErrorMessage("");
     setIsEditing(false);
   };
 
   // Deletar comentário
-
-const handleDelete = async () => {
-  Alert.alert(
-    "Confirmação",
-    "Deseja realmente deletar este comentário?",
-    [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Deletar",
-        style: "destructive",
-        onPress: async () => {
-          setDeleting(true);
-          try {
-            await onDelete(comment.idcomment);
-          } catch (err: any) {
-            if (err.details?.length > 0) {
-              showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
-            } else {
-              showToast(err.message || "Erro desconhecido");
+  const handleDelete = async () => {
+    Alert.alert(
+      "Confirmação",
+      "Deseja realmente deletar este comentário?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Deletar",
+          style: "destructive",
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              await onDelete(comment.idcomment);
+            } catch (err: any) {
+              if (err.details?.length > 0) {
+                showToast(err.details.map((d: any) => `${d.field}: ${d.message}`).join("\n"));
+              } else {
+                showToast(err.message || "Erro desconhecido");
+              }
+            } finally {
+              setDeleting(false);
             }
-          } finally {
-            setDeleting(false);
-          }
+          },
         },
-      },
-    ]
-  );
-};
+      ]
+    );
+  };
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.author}>{comment.autor || "Anônimo"} - {formattedDate}</Text>
+        <Text style={styles.author}>
+          {comment.autor || "Anônimo"} - {formattedDate}
+        </Text>
         <View style={styles.actions}>
           {isEditing ? (
             <>
@@ -108,26 +114,29 @@ const handleDelete = async () => {
       </View>
 
       {isEditing ? (
-        <TextInput
-          style={styles.input}
-          value={textUpdate}
-          onChangeText={setTextUpdate}
-          multiline
-          editable={!saving}
-        />
+        <>
+          <TextInput
+            style={styles.input}
+            value={textUpdate}
+            onChangeText={(text) => {
+              setTextUpdate(text);
+              if (errorMessage) setErrorMessage("");
+            }}
+            multiline
+            editable={!saving}
+          />
+          {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+        </>
       ) : (
         <Text style={styles.text}>{comment.conteudo}</Text>
       )}
-
-      {/* Toast de erro */}
-      {errorMessage ? <ErrorToast message={errorMessage} onHide={() => setErrorMessage("")} /> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#ffffffff",
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
@@ -162,5 +171,10 @@ const styles = StyleSheet.create({
     padding: 6,
     backgroundColor: "#fff",
     color: "#333",
+  },
+  error: {
+    color: "red",
+    marginTop: 4,
+    fontSize: 12,
   },
 });

@@ -23,11 +23,26 @@ import AppHeader from "../components/AppHeader";
 import { CATEGORIAS, STATUS, Categoria, Status } from "../utils/enums";
 import { useToast } from "../context/ToastProvider";
 
+// Schema com trim() para bloquear só espaços
 const feedbackSchema = yup.object({
-  titulo: yup.string().min(3, "Mínimo 3 caracteres").required("Título obrigatório"),
-  descricao: yup.string().min(10, "Mínimo 10 caracteres").required("Descrição obrigatória"),
-  categoria: yup.string().oneOf(CATEGORIAS as unknown as string[], "Categoria inválida").required(),
-  status: yup.string().oneOf(STATUS as unknown as string[], "Status inválido").required(),
+  titulo: yup
+    .string()
+    .trim("O título não pode conter apenas espaços")
+    .min(3, "Mínimo 3 caracteres")
+    .required("Título obrigatório"),
+  descricao: yup
+    .string()
+    .trim("A descrição não pode conter apenas espaços")
+    .min(10, "Mínimo 10 caracteres")
+    .required("Descrição obrigatória"),
+  categoria: yup
+    .string()
+    .oneOf(CATEGORIAS as unknown as string[], "Categoria inválida")
+    .required("Categoria obrigatória"),
+  status: yup
+    .string()
+    .oneOf(STATUS as unknown as string[], "Status inválido")
+    .required("Status obrigatório"),
 });
 
 type FeedbackFormData = {
@@ -44,9 +59,9 @@ export default function FeedbackForm() {
   const isEdit = !!idfeedback;
   const { showToast } = useToast();
 
-  
   const { addFeedback, editFeedback, removeFeedback } = useFeedbacks();
-//gambiarra pro spinner de carregamento
+
+  // Spinner de carregamento
   const [loading, setLoading] = useState(isEdit);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
 
@@ -56,7 +71,7 @@ export default function FeedbackForm() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FeedbackFormData>({
-    //@ts-ignore
+     // @ts-ignore
     resolver: yupResolver(feedbackSchema),
     defaultValues: {
       titulo: "",
@@ -69,14 +84,15 @@ export default function FeedbackForm() {
   // Carregar feedback para edição
   useEffect(() => {
     if (!isEdit) return;
-
+    
     const loadFeedback = async () => {
       setLoading(true);
       try {
         const feedbackData = await getFeedbackById(idfeedback!);
         setFeedback(feedbackData);
-         //@ts-ignore
+         // @ts-ignore
         reset({
+         
           titulo: feedbackData.titulo,
           descricao: feedbackData.descricao,
           categoria: feedbackData.categoria,
@@ -124,7 +140,7 @@ export default function FeedbackForm() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={styles.centered}>
         <ActivityIndicator size="large" color="#007bff" />
         <Text style={{ marginTop: 12, color: "#666" }}>Carregando feedback...</Text>
       </View>
@@ -167,7 +183,7 @@ export default function FeedbackForm() {
               <Text style={styles.label}>Categoria</Text>
               <View style={styles.pickerContainer}>
                 <Picker selectedValue={value} onValueChange={onChange}>
-                  {CATEGORIAS.map(c => (
+                  {CATEGORIAS.map((c) => (
                     <Picker.Item key={c} label={c} value={c} />
                   ))}
                 </Picker>
@@ -185,7 +201,7 @@ export default function FeedbackForm() {
               <Text style={styles.label}>Status</Text>
               <View style={styles.pickerContainer}>
                 <Picker selectedValue={value} onValueChange={onChange}>
-                  {STATUS.map(s => (
+                  {STATUS.map((s) => (
                     <Picker.Item key={s} label={s} value={s} />
                   ))}
                 </Picker>
@@ -199,12 +215,22 @@ export default function FeedbackForm() {
       </ScrollView>
 
       <View style={styles.bottomButtons}>
-        <AppButton variant="secondary" title="Cancelar" onPress={() => navigation.goBack()} style={{ flex: 1, marginRight: 8 }} />
+        <AppButton
+          variant="secondary"
+          title="Cancelar"
+          onPress={() => navigation.goBack()}
+          style={{ flex: 1, marginRight: 8 }}
+        />
         {isSubmitting ? (
           <ActivityIndicator size="large" style={{ flex: 1 }} />
         ) : (
-          <AppButton variant="primary" title={isEdit ? "Atualizar" : "Criar"} onPress={  //@ts-ignore
-          handleSubmit(onSubmit)} style={{ flex: 1, marginLeft: 8 }} />
+          <AppButton
+            variant="primary"
+            title={isEdit ? "Atualizar" : "Criar"}
+            //@ts-ignore
+            onPress={handleSubmit(onSubmit)}
+            style={{ flex: 1, marginLeft: 8 }}
+          />
         )}
       </View>
     </KeyboardAvoidingView>
@@ -212,9 +238,35 @@ export default function FeedbackForm() {
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: { padding: 16, paddingBottom: 0, backgroundColor: "#f0f4f8" },
-  label: { marginBottom: 4, fontWeight: "bold", fontSize: 14 },
-  bottomButtons: { flexDirection: "row", justifyContent: "space-between", padding: 16, borderTopWidth: 1, borderTopColor: "#d1d5db", backgroundColor: "#ffffff" },
-  pickerContainer: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 8, overflow: "hidden", backgroundColor: "#ffffff" },
-  errorText: { color: "#dc2626", marginTop: 6, fontSize: 12 },
+  scrollContainer: {
+    padding: 16,
+    paddingBottom: 0,
+    backgroundColor: "#f0f4f8",
+  },
+  label: {
+    marginBottom: 4,
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  bottomButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#d1d5db",
+    backgroundColor: "#ffffff",
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    borderRadius: 8,
+    overflow: "hidden",
+    backgroundColor: "#ffffff",
+  },
+  errorText: {
+    color: "#dc2626",
+    marginTop: 6,
+    fontSize: 12,
+  },
+  centered: { flex: 1, justifyContent: "center", alignItems: "center" },
 });

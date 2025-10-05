@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  FlatList,
   ActivityIndicator,
   TouchableOpacity,
   KeyboardAvoidingView,
@@ -20,7 +19,21 @@ import AppInput from "../../components/AppInput";
 import { useToast } from "../../context/ToastProvider";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { schema } from "./Schema";
+import * as yup from "yup";
+
+// Schema atualizado para não permitir apenas espaços
+const schema = yup.object({
+  autor: yup
+    .string()
+    .trim()
+    .required("O autor é obrigatório")
+    .test("not-blank", "O autor não pode estar em branco", (val) => !!val?.trim()),
+  conteudo: yup
+    .string()
+    .trim()
+    .required("O comentário é obrigatório")
+    .test("not-blank", "O comentário não pode estar em branco", (val) => !!val?.trim()),
+});
 
 type FormData = { autor: string; conteudo: string };
 
@@ -36,7 +49,14 @@ export default function FeedbackDetail() {
 
   const { comments, addComment, editComment, removeComment, fetchComments } = useComments(idfeedback);
 
-  const { control, handleSubmit, reset, setError } = useForm<FormData>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setError,
+    clearErrors, // limpar erros ao digitar
+    formState: { errors },
+  } = useForm<FormData>({
     defaultValues: { autor: "", conteudo: "" },
     resolver: yupResolver(schema),
   });
@@ -63,6 +83,31 @@ export default function FeedbackDetail() {
     };
     loadFeedback();
   }, [idfeedback]);
+
+  const onSubmit = async (data: FormData) => {
+    setSubmitting(true);
+    try {
+      await addComment(data.conteudo.trim(), data.autor.trim());
+      reset();
+      fetchComments();
+    } catch (err: any) {
+      if (err?.details) {
+        err.details.forEach((d: any) => {
+          showToast(`${d.field}: ${d.message}`);
+          setError(d.field as "autor" | "conteudo", {
+            type: "manual",
+            message: d.message,
+          });
+        });
+      } else if (err?.message) {
+        showToast(err.message);
+      } else {
+        showToast("Erro ao publicar comentário");
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading)
     return (
@@ -94,31 +139,6 @@ export default function FeedbackDetail() {
     minute: "2-digit",
   });
 
-  const onSubmit = async (data: FormData) => {
-    setSubmitting(true);
-    try {
-      await addComment(data.conteudo, data.autor);
-      reset();
-      fetchComments();
-    } catch (err: any) {
-      if (err?.details) {
-        err.details.forEach((d: any) => {
-          showToast(`${d.field}: ${d.message}`);
-          setError(d.field as "autor" | "conteudo", {
-            type: "manual",
-            message: d.message,
-          });
-        });
-      } else if (err?.message) {
-        showToast(err.message);
-      } else {
-        showToast("Erro ao publicar comentário");
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -132,7 +152,6 @@ export default function FeedbackDetail() {
       />
 
       <View style={styles.contentWrapper}>
-        {/* Conteúdo rolável */}
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.infoGrid}>
             <View style={styles.infoCard}>
@@ -168,15 +187,23 @@ export default function FeedbackDetail() {
           ))}
         </ScrollView>
 
-        {/* Footer fixo */}
         <View style={styles.commentFooter}>
-          <AppInput control={control} name="autor" placeholder="Autor" style={styles.input} />
+          <AppInput
+            control={control}
+            name="autor"
+            placeholder="Autor"
+            style={styles.input}
+            error={errors.autor?.message}
+            
+          />
           <AppInput
             control={control}
             name="conteudo"
             placeholder="Digite seu comentário..."
             style={styles.input}
             multiline
+            error={errors.conteudo?.message}
+          
           />
           <TouchableOpacity
             style={[styles.publishButton, submitting && { opacity: 0.6 }]}
@@ -208,12 +235,7 @@ const styles = StyleSheet.create({
   footerText: { fontSize: 12, color: "#888" },
   dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: "#888", marginHorizontal: 6 },
   sectionTitle: { fontSize: 16, fontWeight: "600", marginTop: 12 },
-  commentFooter: {
-    padding: 8,
-    backgroundColor: "#f6f7fb",
-    borderTopWidth: 1,
-    borderTopColor: "#ddd",
-  },
+  commentFooter: { padding: 8, backgroundColor: "#f6f7fb", borderTopWidth: 1, borderTopColor: "#ddd" },
   input: { marginVertical: 4 },
   publishButton: { backgroundColor: "#007bff", padding: 10, borderRadius: 6, alignItems: "center", marginTop: 8 },
   publishText: { color: "#fff", fontWeight: "600" },

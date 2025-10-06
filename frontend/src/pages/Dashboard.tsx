@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
-
+import { Search } from "lucide-react";
 import Card from "../components/baseComponents/card";
 import FeedbackCard from "../components/buildedComponents/FeedbacksCard";
 import AppHeader from "../components/buildedComponents/Header";
@@ -85,12 +85,20 @@ export function Dashboard() {
 
       {/* Topo com busca */}
       <Card className="mb-6 p-4 sm:p-6 w-full max-w-5xl md:max-w-6xl mx-auto flex flex-col items-center gap-4">
-        <input
-          type="text"
-          placeholder="Buscar feedback..."
-          onChange={(e) => debouncedSearch(e.target.value)}
-          className="w-full px-4 sm:px-30 py-3 sm:py-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition text-base sm:text-lg"
-        />
+        <div className="relative w-full max-w-3xl">
+          <Search
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 transition-colors duration-200 group-focus-within:text-blue-500"
+            size={22}
+          />
+          <input
+            type="text"
+            placeholder="Buscar feedback..."
+            onChange={(e) => debouncedSearch(e.target.value)}
+            className="peer w-full pl-12 pr-4 py-3 sm:py-3.5 text-gray-800 bg-white border border-gray-300 rounded-xl shadow-sm 
+                      focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 
+                      placeholder-gray-400 text-base sm:text-lg hover:border-gray-400"
+          />
+        </div>
       </Card>
 
       {/* Lista de Feedbacks */}

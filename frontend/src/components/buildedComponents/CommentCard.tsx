@@ -34,7 +34,7 @@ export default function CommentCard({ comment, onEdit, onDelete }: CommentCardPr
       return;
     }
 
-    setErrorMessage(""); // Limpa erro anterior
+    setErrorMessage(""); 
     setSaving(true);
     try {
       await onEdit(comment.idcomment, trimmedText);
@@ -143,7 +143,7 @@ export default function CommentCard({ comment, onEdit, onDelete }: CommentCardPr
       ) : (
         <p
           className="text-gray-700 text-sm break-words"
-          style={{ maxWidth: "40ch", whiteSpace: "pre-wrap" }}
+          style={{ maxWidth: "70ch", whiteSpace: "pre-wrap" }}
         >
           {comment.conteudo}
         </p>

@@ -67,7 +67,7 @@ export default function FeedbackFormPage() {
     if (isEdit) {
       getFeedbackById(idfeedback!)
         .then(res => reset(res))
-        .catch(() => showToast("Não foi possível carregar o feedback"))
+        .catch(() => showToast("Feedback deletado"))
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
@@ -86,14 +86,14 @@ export default function FeedbackFormPage() {
     try {
       if (isEdit) {
         await updateFeedback(idfeedback!, trimmedData);
-        showToast("Feedback atualizado com sucesso!");
+        showToast("Feedback atualizado com sucesso!",3000,"success");
       } else {
         await createFeedback(trimmedData);
-        showToast("Feedback criado com sucesso!");
+        showToast("Feedback criado com sucesso!",3000,"success");
       }
       navigate("/");
     } catch (err: any) {
-      showToast(err?.message || "Erro desconhecido");
+      showToast(err?.message || "Erro desconhecido",3000,"success");
     }
   };
 
@@ -101,7 +101,7 @@ export default function FeedbackFormPage() {
     if (!isEdit) return;
     try {
       await deleteFeedback(idfeedback!);
-      showToast("Feedback deletado com sucesso!");
+      showToast("Feedback deletado com sucesso!",3000,"success");
       navigate("/");
     } catch (err: any) {
       showToast(err?.message || "Erro ao deletar feedback");

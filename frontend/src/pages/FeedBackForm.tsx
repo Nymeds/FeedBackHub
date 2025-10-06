@@ -50,8 +50,8 @@ export default function FeedbackFormPage() {
   const { idfeedback } = useParams<{ idfeedback: string }>();
   const isEdit = !!idfeedback;
   const [loading, setLoading] = useState(true);
-
-  const { control, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FeedbackFormData>({
+  const [tituloFeddback, setTituloFeedback] = useState("Criar Feedback");
+  const { control, handleSubmit,watch, reset, formState: { errors, isSubmitting } } = useForm<FeedbackFormData>({
     //@ts-ignore
     resolver: yupResolver(feedbackSchema),
     defaultValues: {
@@ -61,7 +61,16 @@ export default function FeedbackFormPage() {
       status: "suggestion",
     },
   });
-
+   const tituloValor = watch("titulo");
+  useEffect(() => {
+  if (!isEdit) {
+    if (!tituloValor || tituloValor.trim() === "") {
+      setTituloFeedback("Criar Feedback"); 
+    } else {
+      setTituloFeedback(tituloValor); 
+    }
+  }
+}, [tituloValor, isEdit]);
   // Carrega feedback para edição
   useEffect(() => {
     if (isEdit) {
@@ -113,7 +122,7 @@ export default function FeedbackFormPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       <AppHeader
-        title={isEdit ? "Editar Feedback" : "Novo Feedback"}
+        title={isEdit ? "Editar Feedback" :  tituloFeddback}
         onBack={() => navigate(-1)}
         onDelete={isEdit ? handleDelete : undefined}
       />

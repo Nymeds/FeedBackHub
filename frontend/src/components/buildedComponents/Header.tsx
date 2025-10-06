@@ -50,7 +50,7 @@ export default function AppHeader({ title, onBack, onEdit, onDelete }: AppHeader
       {/* Título */}
         <h1
         className="text-2xl font-bold text-gray-800 text-center flex-1 truncate"
-        style={{ maxWidth: "200px" }}
+        style={{ maxWidth: "500px" }}
         title={title} 
              >
         {title}

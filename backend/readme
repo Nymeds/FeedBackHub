@@ -61,14 +61,6 @@ npm run dev
 yarn dev
 ```
 
-### Modo de produção
-```bash
-npm run build
-npm start
-# ou
-yarn build
-yarn start
-```
 
 A API estará disponível em: **http://localhost:3000**
 

@@ -106,7 +106,7 @@ export default function FeedbackDetailPage() {
         </div>
 
         {/* Descrição */}
-        <p className="text-gray-700">{feedback.descricao}</p>
+        <p className="text-gray-700 break-words whitespace-pre-wrap">{feedback.descricao}</p>
         <p className="text-xs text-gray-500">
           Criado em: {createdAt} | Atualizado em: {updatedAt}
         </p>

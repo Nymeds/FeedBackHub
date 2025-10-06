@@ -73,12 +73,6 @@ export default function FeedbackFormPage() {
       setLoading(false);
     }
   }, [idfeedback, isEdit, reset, showToast]);
-  useEffect(() => {
-  const firstError = Object.values(errors)[0];
-  if (firstError?.message) {
-    showToast(firstError.message);
-  }
-}, [errors, showToast]);
 
   const onSubmit = async (data: FeedbackFormData) => {
     // Trim nos valores antes de enviar
@@ -115,7 +109,7 @@ export default function FeedbackFormPage() {
   };
 
   if (loading) return <p className="text-center mt-10 text-gray-500">Carregando...</p>;
-  
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       <AppHeader
@@ -173,15 +167,11 @@ export default function FeedbackFormPage() {
         </div>
 
         {/* Botão de submit */}
-        <Button
-          size="lg"
-          //@ts-ignore
-          onClick={handleSubmit(onSubmit)}
-          disabled={isSubmitting}
-        >
+        <Button size="lg" onClick={
+          // @ts-expect-error
+          handleSubmit(onSubmit)} disabled={isSubmitting}>
           {isEdit ? "Atualizar Feedback" : "Criar Feedback"}
         </Button>
-
       </div>
     </div>
   );

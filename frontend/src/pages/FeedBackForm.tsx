@@ -93,7 +93,7 @@ export default function FeedbackFormPage() {
       }
       navigate("/");
     } catch (err: any) {
-      showToast(err?.message || "Erro desconhecido",3000,"success");
+      showToast(err?.message || "Erro desconhecido",3000,"error");
     }
   };
 

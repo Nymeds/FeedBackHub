@@ -32,10 +32,11 @@ export default function CommentCard({ comment, idfeedback, onEdit, onDelete }: C
       setErrorMessage("O comentário não pode ser vazio");
       return;
     }
-    setErrorMessage(""); // limpa erro
+    setErrorMessage(""); 
     setSaving(true);
     try {
       await onEdit(comment.idcomment, textUpdate);
+      showToast("Comentário editado com sucesso", 2000, "success");
       setIsEditing(false);
     } catch (err: any) {
       if (err.details?.length > 0) {

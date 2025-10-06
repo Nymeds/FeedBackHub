@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
-import ErrorToast from "../components/ToastCard";
+import ErrorToast from "../components/ToastCard"; 
+
+type ToastType = "success" | "error";
 
 interface ToastContextType {
-  showToast: (message: string, duration?: number) => void;
+  showToast: (message: string, duration?: number, type?: ToastType) => void;
 }
 
 const ToastContext = createContext<ToastContextType>({
@@ -13,10 +14,18 @@ const ToastContext = createContext<ToastContextType>({
 export const useToast = () => useContext(ToastContext);
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
-  const [toast, setToast] = useState<{ message: string; duration?: number } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    duration?: number;
+    type?: ToastType;
+  } | null>(null);
 
-  const showToast = (message: string, duration = 3000) => {
-    setToast({ message, duration });
+  const showToast = (
+    message: string,
+    duration = 3000,
+    type: ToastType = "error" 
+  ) => {
+    setToast({ message, duration, type });
   };
 
   const hideToast = () => setToast(null);
@@ -24,7 +33,14 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      {toast && <ErrorToast message={toast.message} duration={toast.duration} onHide={hideToast} />}
+      {toast && (
+        <ErrorToast
+          message={toast.message}
+          duration={toast.duration}
+          type={toast.type} 
+          onHide={hideToast}
+        />
+      )}
     </ToastContext.Provider>
   );
 };

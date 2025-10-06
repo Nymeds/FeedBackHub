@@ -30,11 +30,13 @@ const feedbackSchema = yup.object({
     .required("Título obrigatório")
     .trim()
     .test("not-blank", (val) => !!val?.trim())
+    .max(100)
     .min(3, "Mínimo 3 caracteres"),
   descricao: yup
     .string()
     .required("Descrição obrigatória")
     .trim()
+    .max(1000)
     .test("not-blank", (val) => !!val?.trim())
     .min(10, "Mínimo 10 caracteres"),
   categoria: yup
@@ -122,10 +124,10 @@ export default function FeedbackForm() {
     try {
       if (isEdit && idfeedback) {
         await editFeedback(idfeedback, trimmedData);
-        showToast("Feedback atualizado!");
+        showToast("Feedback atualizado!", 3000, "success");
       } else {
         await addFeedback(trimmedData);
-        showToast("Feedback criado!");
+        showToast("Feedback criado!", 3000, "success");
       }
       navigation.navigate("FeedbackList");
     } catch (err: any) {
@@ -138,7 +140,7 @@ export default function FeedbackForm() {
     if (!idfeedback) return;
     try {
       await removeFeedback(idfeedback);
-      showToast("Feedback deletado!");
+      showToast("Feedback deletado!", 3000, "success");
       navigation.reset({ index: 0, routes: [{ name: "FeedbackList" }] });
     } catch (err: any) {
       showToast(err?.message || "Erro ao deletar feedback");
@@ -163,24 +165,27 @@ export default function FeedbackForm() {
       />
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <AppInput
-          label="Título"
-          placeholder="Digite o título"
-          control={control}
-          name="titulo"
-          error={errors.titulo?.message}
-        />
+      <AppInput
+        label="Título"
+        placeholder="Digite o título"
+        control={control}
+        name="titulo"
+        error={errors.titulo?.message}
+        maxLength={100} 
+      />
 
-        <AppInput
-          label="Descrição"
-          placeholder="Digite a descrição"
-          control={control}
-          name="descricao"
-          multiline
-          numberOfLines={6}
-          error={errors.descricao?.message}
-          style={{ minHeight: 100, textAlignVertical: "top" }}
-        />
+      <AppInput
+        label="Descrição"
+        placeholder="Digite a descrição"
+        control={control}
+        name="descricao"
+        multiline
+        numberOfLines={6}
+        error={errors.descricao?.message}
+        style={{ minHeight: 100, textAlignVertical: "top" }}
+        maxLength={1000} 
+      />
+
 
         <Controller
           control={control}

@@ -38,7 +38,7 @@ yarn install
 ```
 
 ### 3. Configure as variáveis de ambiente
-Crie um arquivo `.env` na raiz do projeto:
+Crie um arquivo `.env` na raiz do projeto ou use o .example:
 
 ```env
 DATABASE_URL="file:./dev.db"

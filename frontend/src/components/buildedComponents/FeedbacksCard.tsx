@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckIcon, Calendar } from "lucide-react";
+import { MessageCircle, Calendar } from "lucide-react";
 import type { Feedback } from "../../api/feedback";
 
 interface FeedbackCardProps {
@@ -47,7 +47,7 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
       {/* Rodapé */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-1 text-gray-600 text-sm">
-          <CheckIcon size={16} />
+          <MessageCircle size={16} />
           <span>{commentsCount}</span>
         </div>
         <div className="flex items-center gap-1 text-gray-600 text-sm">
